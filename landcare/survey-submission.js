@@ -1,9 +1,10 @@
+import { confirmReportChange, clearReportGuard, reportIsPending } from './report-guard.js';
 import { parcelBlockLot } from "./parcel-label.js";
 import { ParcelSelection } from "./parcel-selection.js";
 import { currentPeriodLabel, previousPeriodLabel, assignmentPeriodLabel } from "./service-period.js";
 import { addFindMyLocation } from "./map-location.js?v=20261015-visible";
 import { buildPilotSurveyUrl } from "./pilot-survey-url.js";
-import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261026-results";
+import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261026-design1";
 import {
   ASSIGNMENT_HISTORY_LAYER_URL,
   SURVEY123_PREFILL_FIELDS,
@@ -51,6 +52,8 @@ document.addEventListener('landcare:reference-progress', event => {
 });
 
 function invalidatePilotForm() {
+  clearReportGuard();
+  document.body.classList.remove("report-open");
   formVersion++;
   link.hidden = true;
   link.removeAttribute('href');
@@ -65,10 +68,14 @@ function renderSelection() {
   document.getElementById('pilotRunningSelected').textContent = String(items.length);
   clearSelectionButton.disabled = !items.length;
   continueButton.disabled = !items.length;
+  document.getElementById('pilotDockContinue').disabled=!items.length;
+  document.getElementById('pilotDockLabel').textContent=`${items.length} parcel${items.length===1?'':'s'} selected`;
+  document.getElementById('pilotDockPeriod').textContent=monthSelect.value ? assignmentPeriodLabel(monthSelect.value) : '';
+  document.getElementById('selectionDock').hidden=!items.length || document.body.dataset.activeTab!=='submit';
   continueButton.textContent = `Open report for ${items.length || 'selected'} parcel${items.length === 1 ? '' : 's'}`;
   selectionHelp.textContent = items.length > 1
-    ? 'One fulfillment answer and photo apply to every selected parcel. The pilot form will include one related record per parcel.'
-    : 'Select parcels from the map or list. The pilot form will check that every selected parcel has a related record.';
+    ? 'The same answer and photos must cover every selected parcel. Use separate reports for different outcomes.'
+    : 'Add more parcels or continue to review and report.';
   selectionList.replaceChildren(...items.map(item => {
     const row = document.createElement('li');
     row.append(document.createTextNode(`${parcelBlockLot(item.parcelNumber)} — ${item.address}`));
@@ -77,6 +84,7 @@ function renderSelection() {
     remove.textContent = 'Remove';
     remove.setAttribute('aria-label', `Remove ${parcelBlockLot(item.parcelNumber)}`);
     remove.addEventListener('click', () => {
+      if (!confirmReportChange()) return;
       selection.remove(item.objectId);
       if (parcelSelect.value === item.objectId) parcelSelect.value = '';
       invalidatePilotForm();
@@ -107,6 +115,7 @@ function resetSelection() {
   renderSelection();
 }
 clearSelectionButton.addEventListener('click', () => {
+  if (!confirmReportChange()) return;
   resetSelection();
   parcelSelect.value = '';
   syncContractorUrl();
@@ -334,20 +343,21 @@ function showSelectedParcel(assignment) {
   if (selectedParcelLabelGraphic?.geometry) parcelMapView.graphics.add(selectedParcelLabelGraphic);
   syncAvailableParcelLabels();
   parcelMapView.goTo(assignment.geometry.extent?.expand(1.55) || selectedParcelGraphic, { duration: 450 }).catch(() => {});
-  selectedParcelLabel.textContent = `${assignment.parcelNumber} - ${assignment.address}`;
+  selectedParcelLabel.textContent = `${parcelBlockLot(assignment.parcelNumber)} · ${assignment.address}`;
   selectedParcelBadge.hidden = false;
-  selectedParcelBadge.textContent = `Selected parcel · ${assignment.parcelNumber}`;
-  selectedParcelMeta.textContent = `Bright blue boundary = this service record. ${assignment.address} · ${cleanOrganization(assignment.organization)} · ${assignment.period} · ${assignment.coordinateLabel}`;
+  selectedParcelBadge.textContent = `Selected parcel · ${parcelBlockLot(assignment.parcelNumber)}`;
+  selectedParcelMeta.textContent = `Bright blue boundary = this service record. ${assignment.address} · ${cleanOrganization(assignment.organization)} · ${assignmentPeriodLabel(assignment.period)}`;
 }
 
 function selectAssignment(objectId, { fromMap = false } = {}) {
   const assignment = assignments.find((item) => item.objectId === String(objectId));
   if (!assignment) return;
+  if (!confirmReportChange()) {parcelSelect.value=selectedAssignment?.objectId || "";return;}
   parcelSelect.value = assignment.objectId;
   if (fromMap && selection.has(assignment.objectId)) selection.remove(assignment.objectId);
   else selection.add(assignment);
   invalidatePilotForm();
-  status.textContent = `${assignment.parcelNumber} - ${assignment.address} - ${assignment.period}${fromMap ? " (selected on map)" : ""}`;
+  status.textContent = `${parcelBlockLot(assignment.parcelNumber)} · ${assignment.address} · ${assignment.period}${fromMap ? " (selected on map)" : ""}`;
   if (!fromMap) showSelectedParcel(assignment);
   renderSelection();
   syncContractorUrl();
@@ -374,12 +384,26 @@ async function loadRecentMonths() {
   const available = months.filter((month) => published.has(month));
   if (!available.length) throw new Error('Current and previous period assignments are not available yet.');
   monthSelect.value = available.includes(requestedMonth) ? requestedMonth : available[0];
-  const periodNotice = document.createElement('p');
-  periodNotice.className = 'contractor-context__status';
-  periodNotice.setAttribute('role', 'status');
-  periodNotice.textContent = 'LandCare periods run from the 15th through the 14th of the next month, Eastern time. Submit immediately after work, preferably the same day and by the end of the 14th. Missed that deadline? Choose Previous period to report work for that period. Your actual submission time is still recorded. If a period has no published assignments, it cannot be selected yet.';
-  monthSelect.closest('section').append(periodNotice);
+  updatePeriodNotice();
   monthSelect.disabled = false;
+}
+
+function updatePeriodNotice() {
+  let notice=document.getElementById('periodNotice');
+  if(!notice) {
+    notice=document.createElement('div');notice.id='periodNotice';notice.className='period-notice';
+    monthSelect.closest('section').append(notice);
+  }
+  const previous=monthSelect.value!==currentPeriodLabel();
+  const range=assignmentPeriodLabel(monthSelect.value);
+  notice.innerHTML='';
+  const deadline=document.createElement('p');
+  deadline.className=previous ? 'late-period-notice' : 'period-deadline';
+  deadline.textContent=previous ? `Late report: this will count toward ${range}. Your actual submission time is recorded.` : `Submit the same day, by ${range.split(' – ')[1]} at 11:59 p.m. Eastern.`;
+  const rules=document.createElement('details');
+  const summary=document.createElement('summary');summary.textContent='How service periods work';
+  const text=document.createElement('p');text.textContent='Periods run from the 15th through the 14th, Eastern time. Submit immediately after work, preferably the same day. If you miss the deadline, choose Previous period. Your report counts toward that selected period; your actual submission timestamp is preserved. Periods without published assignments cannot be selected.';
+  rules.append(summary,text);notice.append(deadline,rules);
 }
 
 async function loadOrganizations() {
@@ -451,7 +475,13 @@ async function loadParcels(organization) {
 
 const buildSurveyUrl = buildPilotSurveyUrl;
 
+let confirmedMonth="",confirmedOrganization="";
+for (const field of [monthSelect,organizationSelect]) {
+  field.addEventListener("focus",()=>{confirmedMonth=monthSelect.value;confirmedOrganization=organizationSelect.value;});
+}
 monthSelect.addEventListener("change", async () => {
+  if (!confirmReportChange()) {monthSelect.value=confirmedMonth;return;}
+  updatePeriodNotice();
   pilotStatuses=null;
   referenceSubmittedIds.clear();
   parcelLoadVersion++;
@@ -472,6 +502,7 @@ monthSelect.addEventListener("change", async () => {
 });
 
 organizationSelect.addEventListener("change", async () => {
+  if (!confirmReportChange()) {organizationSelect.value=confirmedOrganization;return;}
   pilotStatuses=null;
   referenceSubmittedIds.clear();
   parcelLoadVersion++;
@@ -505,8 +536,9 @@ parcelSelect.addEventListener("change", () => {
 
 lookupForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  if (!selection.size) return;
+  if (!selection.size || !confirmReportChange()) return;
   invalidatePilotForm();
+  document.body.classList.add("report-open");
   const version = formVersion;
   const chosen = selection.values().map(item => ({...item}));
   status.textContent = `Opening the pilot report for ${chosen.length} parcel(s).`;
@@ -514,11 +546,27 @@ lookupForm.addEventListener("submit", async (event) => {
     await openPilotRepeatForm(container, chosen, () => version === formVersion);
     if (version === formVersion) container.scrollIntoView({behavior:'smooth',block:'start'});
   } catch (error) {
+    document.body.classList.remove("report-open");
     if (version === formVersion) {
       status.textContent = `Pilot form could not open: ${error.message}`;
       container.textContent = 'No report was submitted. Keep this selection and retry opening the pilot form.';
     }
   }
+});
+document.getElementById('pilotDockContinue').addEventListener('click',()=>lookupForm.requestSubmit());
+document.addEventListener('landcare:tab-changed',renderSelection);
+document.addEventListener('landcare:report-more',()=>{
+  resetSelection();parcelSelect.value='';syncContractorUrl();
+  parcelMapNode.scrollIntoView({behavior:'smooth',block:'center'});
+});
+document.getElementById('parcelSearch').addEventListener('input',event=>{
+  const query=event.target.value.toLowerCase().replace(/[^a-z0-9]/g,'');
+  for(const option of parcelSelect.options) {
+    const item=assignments.find(a=>a.objectId===option.value);
+    const matches=!item || !query || `${parcelBlockLot(item.parcelNumber)} ${item.address} ${item.parcelNumber}`.toLowerCase().replace(/[^a-z0-9]/g,'').includes(query);
+    option.hidden=!matches; option.disabled=!matches || !option.value;
+  }
+  document.getElementById('parcelSearchResult').textContent=query ? `${[...parcelSelect.options].filter(o=>o.value && !o.hidden).length} matching parcels in the list. Map still shows all assigned parcels.` : '';
 });
 loadRecentMonths()
   .then(async () => {

@@ -1,0 +1,123 @@
+/* Pilot-only field workspace. Keep the production stylesheet and site separate. */
+[hidden] {display:none !important;}
+body[data-page="contractor"] {background:#f1f5f7;color:#183b50;font-size:15px;}
+body[data-page="contractor"] .contractor-shell {max-width:1400px;margin:auto;padding:18px 24px 110px;display:flex;flex-direction:column;gap:14px;}
+body[data-page="contractor"] .app-header {position:relative;padding:12px 24px;min-height:72px;}
+body[data-page="contractor"] .title-block strong {font-size:21px;}
+body[data-page="contractor"] .page-tabs a {min-height:44px;font-size:14px;}
+.pilot-notice {margin:0;font-size:13px;color:#4a6474;}
+body[data-page="contractor"] .contractor-context {margin:0;padding:16px 20px;gap:10px 20px;box-shadow:none;border:1px solid #d6e2e8;border-radius:12px;}
+.contractor-context label {font-size:13px;}
+.contractor-context select {min-height:44px;font-size:15px;}
+.contractor-context__status {margin:0;font-size:13px;}
+.period-notice {grid-column:1/-1;font-size:13px;}
+.period-notice p {margin:0 0 6px;line-height:1.5;}
+.period-notice details p {max-width:850px;padding-top:8px;color:#4a6474;}
+summary {cursor:pointer;min-height:32px;line-height:1.6;font-weight:650;}
+.period-deadline {font-weight:650;}
+.late-period-notice {border-left:4px solid #ac5416;background:#fff3e7;padding:10px 12px;color:#7d3b0d;font-weight:650;}
+.progress-summary {margin:0;}
+body[data-page="contractor"] .pilot-shared-progress {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+body[data-page="contractor"] .contractor-progress-card {min-height:0;padding:12px 16px;border-radius:10px;box-shadow:none;background:#fff;color:#183b50;border:1px solid #d6e2e8;border-top:4px solid #68869a;}
+body[data-page="contractor"] .contractor-progress-card::after {display:none;}
+body[data-page="contractor"] .contractor-progress-card span {color:inherit;font-size:13px;}
+body[data-page="contractor"] .contractor-progress-card strong {font-size:30px;line-height:1.15;margin-top:5px;}
+body[data-page="contractor"] .contractor-progress-card.submitted {background:#edf7ef;border-top-color:#2e7d32;}
+body[data-page="contractor"] .contractor-progress-card.follow-up {background:#fff5ea;border-top-color:#b65a19;}
+body[data-page="contractor"] .contractor-progress-card.open {background:#fff;border-top-color:#97a6b0;}
+body[data-page="contractor"] .contractor-rate {margin:9px 0 0;padding:0;background:none;box-shadow:none;font-size:12px;}
+.workspace-tools {display:flex;align-items:end;gap:12px;}
+.parcel-search {display:grid;gap:5px;flex:1;font-size:13px;font-weight:650;}
+.parcel-search input {width:100%;min-width:0;min-height:44px;border:1px solid #bccfd9;border-radius:8px;padding:10px 12px;font:inherit;background:#fff;color:#183b50;}
+body[data-page="contractor"] button {font:inherit;cursor:pointer;}
+body[data-page="contractor"] button:disabled {cursor:not-allowed;opacity:.55;}
+#pilotRefreshReports,.report-more {min-height:44px;border:1px solid #9ab8c8;border-radius:8px;background:#fff;color:#00597d;padding:10px 14px;font-weight:650;}
+.feed-status {font-size:12px;margin:-6px 0 0;color:#526b7b;}
+body[data-page="contractor"] .contractor-panel {margin:0;}
+body[data-page="contractor"] .contractor-panel__head {padding:4px 0 12px;}
+body[data-page="contractor"] .contractor-panel__head h2 {font-size:20px;margin:0;}
+body[data-page="contractor"] .contractor-panel__head p {font-size:13px;margin:4px 0 0;}
+body[data-page="contractor"] .contractor-map-card {display:flex;flex-direction:column;overflow:hidden;}
+body[data-page="contractor"] .contractor-map-key {position:static;order:-1;box-shadow:none;border:0;border-bottom:1px solid #d6e2e8;border-radius:0;padding:10px 12px;gap:8px;font-size:13px;max-width:none;}
+body[data-page="contractor"] .contractor-map-key button {min-height:36px;padding:5px 8px;border-radius:6px;}
+body[data-page="contractor"] .contractor-map-key button.is-active {background:#e5f3fa;}
+body[data-page="contractor"] .contractor-map-key i.follow-up {background:#f7bc83;border-color:#b65a19;}
+body[data-page="contractor"] .contractor-progress-map {height:480px;min-height:360px;}
+body[data-page="contractor"] .contractor-parcel-detail {padding:16px 20px;}
+body[data-page="contractor"] .contractor-view-switch {margin:0 0 10px;}
+body[data-page="contractor"] .contractor-view-switch button {min-height:44px;}
+body[data-page="contractor"] .assignment-check {display:flex;flex-wrap:wrap;align-items:start;gap:14px;padding:0;background:none;box-shadow:none;color:#183b50;}
+.assignment-check__intro {flex:1 1 100%;order:0;}
+body[data-page="contractor"] .assignment-check__intro h2 {font-size:20px;margin:0 0 5px;}
+body[data-page="contractor"] .assignment-check__intro p {color:#526b7b;max-width:none;}
+body[data-page="contractor"] .assignment-check .section-kicker {display:none;}
+#parcelSearchResult {order:1;flex:1 1 100%;margin:0;font-size:13px;}
+#parcelSearchResult:empty {display:none;}
+body[data-page="contractor"] .contractor-assignment-form {order:2;display:flex;align-items:end;gap:12px;flex:1 1 100%;}
+.contractor-assignment-form label {flex:1;min-width:0;}
+body[data-page="contractor"] .assignment-check label {color:#183b50;font-size:13px;}
+body[data-page="contractor"] .assignment-check select {border:1px solid #bccfd9;font-size:15px;}
+body[data-page="contractor"] .assignment-map-card {order:3;flex:1 1 60%;min-width:0;margin:0;}
+body[data-page="contractor"] .assignment-parcel-map {height:470px;min-height:340px;}
+.assignment-map-card__head {padding:12px 16px;}
+.assignment-map-card__head .eyebrow {display:none;}
+body[data-page="contractor"] .pilot-selection {order:4;flex:1 1 260px;min-width:0;background:#fff;border:1px solid #d6e2e8;padding:16px;border-radius:12px;box-shadow:none;}
+.pilot-selection h3 {margin:0 0 8px;font-size:18px;}
+.pilot-selection p {font-size:13px;line-height:1.5;color:#526b7b;}
+#pilotSelectedParcels {padding:0;list-style:none;max-height:320px;overflow:auto;margin:10px 0;}
+#pilotSelectedParcels li {display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #e2ebef;font-size:14px;}
+body[data-page="contractor"] .assignment-check button {min-height:44px;background:#006c98;color:#fff;border:0;border-radius:8px;padding:10px 14px;font-size:14px;white-space:normal;}
+body[data-page="contractor"] #pilotSelectedParcels button,body[data-page="contractor"] #pilotClearSelection {background:#eef5f8;color:#00597d;}
+.pilot-selection-legend {display:flex;flex-wrap:wrap;gap:10px;padding:12px;font-size:12px;}
+.pilot-selection-legend strong {flex:1 1 100%;font-size:12px;}
+#selectedParcelMeta {font-size:12px;padding:0 12px 12px;line-height:1.5;}
+.selection-dock {position:fixed;z-index:20;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #b9ceda;box-shadow:0 -3px 15px #183b5012;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px max(20px,calc((100vw - 1350px)/2));padding-bottom:max(12px,env(safe-area-inset-bottom));}
+.selection-dock small {display:block;font-size:12px;margin-top:3px;color:#526b7b;}
+.selection-dock button,.report-submit {background:#006c98;color:#fff;border:0;border-radius:8px;min-height:48px;padding:12px 20px;font-weight:700;}
+body.report-open .selection-dock {display:none;}
+body[data-page="contractor"] .survey-frame-card {margin-top:16px;}
+body[data-page="contractor"] .survey-embed {min-height:0;background:#fff;padding:0 20px 20px;}
+body[data-page="contractor"] .survey-embed iframe {min-height:0;border:0;width:100%;}
+.pilot-form-host {width:100%;min-height:350px;}
+.report-context-summary h3 {font-size:20px;margin:12px 0 6px;}
+.report-context-summary p {font-size:14px;line-height:1.5;}
+.report-context-summary ul {max-height:220px;overflow:auto;font-size:14px;}
+.report-guidance {background:#edf5f9;border-radius:8px;padding:12px;}
+.report-feedback {font-size:14px;line-height:1.5;}
+.report-feedback.is-success {background:#edf7ef;border-left:4px solid #2e7d32;padding:16px;font-weight:650;}
+.report-submit {display:block;width:100%;margin:16px 0 0;}
+.report-more {margin-top:12px;}
+.report-diagnostics {background:#fff;border:1px solid #d6e2e8;border-radius:10px;padding:10px 16px;font-size:13px;color:#526b7b;}
+.report-diagnostics p {line-height:1.5;overflow-wrap:anywhere;}
+.diagnostic-counts {display:flex;flex-wrap:wrap;gap:14px;}
+.diagnostic-count {display:flex;gap:6px;}
+.report-history {margin-top:16px;}
+body[data-page="contractor"] .survey-photo-evidence img {max-width:100%;max-height:280px;object-fit:contain;}
+body[data-page="contractor"] :is(button,a,input,select,summary):focus-visible {outline:3px solid #ba5e00;outline-offset:3px;}
+@media(max-width:700px) {
+  body[data-page="contractor"] .contractor-shell {padding:12px 12px 110px;gap:12px;}
+  body[data-page="contractor"] .app-header {padding:10px 12px;gap:10px;}
+  body[data-page="contractor"] .title-block strong {font-size:18px;}
+  body[data-page="contractor"] .freshness {display:none;}
+  body[data-page="contractor"] .page-tabs {width:100%;}
+  body[data-page="contractor"] .page-tabs a {font-size:13px;}
+  body[data-page="contractor"] .contractor-context {padding:12px;grid-template-columns:1fr;gap:10px;}
+  body[data-page="contractor"] .pilot-shared-progress {grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+  body[data-page="contractor"] .contractor-progress-card {padding:9px 12px;}
+  body[data-page="contractor"] .contractor-progress-card strong {font-size:26px;}
+  .workspace-tools {gap:8px;}
+  #pilotRefreshReports {font-size:12px;padding:8px;}
+  body[data-page="contractor"] .contractor-assignment-form {display:block;}
+  #continueToSurvey {display:none;}
+  body[data-page="contractor"] .assignment-map-card {flex-basis:100%;}
+  body[data-page="contractor"] .assignment-parcel-map {height:48vh;min-height:320px;}
+  body[data-page="contractor"] .contractor-progress-map {height:48vh;min-height:320px;}
+  body[data-page="contractor"] .pilot-selection {flex-basis:100%;padding:12px;}
+  .selection-dock {padding:10px 12px;}
+  .selection-dock strong {font-size:14px;}
+  .selection-dock small {max-width:220px;font-size:11px;}
+  body[data-page="contractor"] .survey-embed {padding:0 10px 16px;}
+  .survey-frame-head {padding:14px;}
+  body[data-page="contractor"] .contractor-map-key {font-size:12px;gap:4px;}
+  #pilotSelectedParcels {max-height:220px;}
+}

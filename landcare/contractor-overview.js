@@ -65,8 +65,9 @@ let detailVersion = 0;
 function updatePilotMetrics() {
   const result=pilotDetail?.result;
   assignedNode.textContent=formatNumber(state.features.length);
-  submittedNode.textContent=result ? formatNumber(result.reported) : '--';
-  openNode.textContent=result ? formatNumber(result.outstanding) : '--';
+  submittedNode.textContent=result ? formatNumber(result.fulfilled) : '--';
+  openNode.textContent=result ? formatNumber(result.followUp) : '--';
+  document.getElementById('contractorUnreportedKpi').textContent=result ? formatNumber(result.unreported) : '—';
   rateNode.hidden=!result;
   if(result) {
     const rate=result.assigned ? 100*result.fulfilled/result.assigned : 0;
@@ -110,9 +111,11 @@ function statusFor(feature) {
 }
 
 function visibleFeatures() {
+  const query=(document.getElementById("parcelSearch")?.value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const matches=state.features.filter(feature=>!query || `${featureBlockLot(feature)} ${feature.properties.address || ""} ${feature.properties.parcel_number || feature.properties.parcel_key || ""}`.toLowerCase().replace(/[^a-z0-9]/g, "").includes(query));
   return state.statusFilter === "all"
-    ? state.features
-    : state.features.filter((feature) => state.statusFilter==='open'
+    ? matches
+    : matches.filter((feature) => state.statusFilter==='open'
       ? ['follow-up','unreported'].includes(statusFor(feature)) : statusFor(feature) === state.statusFilter);
 }
 
@@ -194,7 +197,7 @@ function parcelDetailMarkup(props, {loadingEvidence=false}={}) {
   const records=props.pilot_reports || [];
   const reports=records.map(report=>`<section class="survey-photo-evidence"><div class="survey-photo-context">
     <strong>${escapeHtml(report.answer==='Yes' ? 'Reported Yes' : 'Reported No')}</strong>
-    <p>Submitted ${escapeHtml(dateLabel(report.submittedAt))} · report ${escapeHtml(report.eventId)}</p>
+    <p>Submitted ${escapeHtml(dateLabel(report.submittedAt))}</p>
     ${report.comments ? `<p><b>Comments:</b> ${escapeHtml(report.comments)}</p>` : ''}</div>
     ${(report.photos || []).map(photo=>{const url=safeImageUrl(photo.image_url);return url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer"><img data-evidence-photo src="${escapeHtml(url)}" alt="Pilot report photo" loading="lazy" referrerpolicy="no-referrer" /></a>` : '';}).join('')}
     ${report.photoError ? '<p>Photo could not be read. The saved report remains available.</p>' : ''}
@@ -204,11 +207,11 @@ function parcelDetailMarkup(props, {loadingEvidence=false}={}) {
     <span>${escapeHtml(props.address || 'Address unavailable')}</span>
     <span><b>Status:</b> ${escapeHtml(pilotStatusLabel(props.pilot_status))}</span>
     <span><b>Assignment period:</b> ${escapeHtml(props.period_month || state.month)}</span>
-    <span>${records.length} pilot report(s). Provider answers are not staff approval.</span>
+    <span>${records.length} report(s) for this period. Contractor answers are not staff approval.</span>
     </div>
     <button type="button" class="contractor-submit-parcel">${records.length ? 'Report another visit' : 'Report service for this parcel'}</button>
     ${loadingEvidence ? '<p>Loading pilot photos…</p>' : ''}
-    ${reports || (props.pilot_status==='unknown' ? '<p>Pilot reports could not be loaded.</p>' : '<p>No pilot report for this parcel and period.</p>')}`;
+    ${(records.length > 1 ? `<details class="report-history"><summary>View report history (${records.length})</summary>${reports}</details>` : reports) || (props.pilot_status==='unknown' ? '<p>Pilot reports could not be loaded.</p>' : '<p>No pilot report for this parcel and period.</p>')}`;
 }
 function setEmptyState(message) {
   state.features=[];
@@ -219,6 +222,7 @@ function setEmptyState(message) {
   assignedNode.textContent = "--";
   submittedNode.textContent = "--";
   openNode.textContent = "--";
+  document.getElementById("contractorUnreportedKpi").textContent="—";
   rateNode.hidden = true;
   detailNode.textContent = "Choose an organization, then select an open parcel to begin its service submission.";
   state.layer?.removeAll();
@@ -385,6 +389,8 @@ function setTab(tab) {
   const url = new URL(window.location.href);
   url.searchParams.set("tab", selected);
   history.replaceState({}, "", url);
+  document.body.dataset.activeTab=selected;
+  document.dispatchEvent(new CustomEvent("landcare:tab-changed",{detail:{tab:selected}}));
   if (selected === "overview") state.view?.resize?.();
 }
 
@@ -547,6 +553,7 @@ async function refreshOverview() {
     updatePilotMetrics();
     freshnessNode.textContent=`${month} · ${organization} · pilot reports`;
     renderOverview();
+    detailNode.textContent=features.length ? 'Select a parcel to see its reports or record a visit.' : 'No active parcels in this period.';
     const geometries=state.layer?.graphics.filter(graphic=>!graphic.attributes?.label).map(graphic=>graphic.geometry);
     if(geometries?.length) state.view?.goTo(geometries,{duration:450}).catch(()=>{});
     document.dispatchEvent(new CustomEvent('landcare:pilot-overview-ready'));
@@ -636,6 +643,7 @@ window.addEventListener("popstate", () => {
 });
 
 setTab(new URLSearchParams(window.location.search).get("tab") || "overview");
+document.getElementById("parcelSearch").addEventListener("input",renderOverview);
 setOverviewView("map");
 initializeMap().catch(() => { detailNode.textContent = "The progress map could not load. Use the submission tab to select an assigned parcel."; });
 

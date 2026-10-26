@@ -13,26 +13,28 @@ function render() {
   cards.replaceChildren();
   if(!snapshot || !context.assignments.length) {
     signal(null);
-    if(snapshot) message.textContent='Choose an organization and period to see its pilot reports.';
+    if(snapshot) {message.textContent='Choose an organization and period to see its reports.';document.getElementById('pilotFeedStatus').textContent='Choose your organization to see progress.';}
     return;
   }
   try {
     const result=summarizePilotReports(snapshot.parents,snapshot.children,context.assignments,context);
     for(const [label,value] of [['Reports',result.events],['Parcel visits',result.parcelVisits],['Reported parcels',result.reported],['Reported fulfilled',result.fulfilled],['Reported No only',result.followUp],['No pilot report',result.unreported]]) {
-      const card=document.createElement('article');card.className='contractor-progress-card assigned';
+      const card=document.createElement('article');card.className='diagnostic-count';
       const title=document.createElement('span');title.textContent=label;
       const count=document.createElement('strong');count.textContent=value;
       card.append(title,count);cards.append(card);
     }
-    message.textContent=`Pilot results read ${snapshot.loadedAt.toLocaleString()}. ${result.outstanding} assignments lack a reported Yes. QA: ${JSON.stringify(result.qa)}. Unreviewed provider answers; a Yes is not staff approval. These counts never update production.`;
+    message.textContent=`Last updated ${snapshot.loadedAt.toLocaleString()}. ${result.outstanding} parcels remain without a Yes report. Data checks: ${JSON.stringify(result.qa)}.`;
+    document.getElementById('pilotFeedStatus').textContent=`Updated ${snapshot.loadedAt.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})} · contractor reports, not staff approval.`;
     signal(result.statuses,result);
   } catch(error) {message.textContent=`Pilot counts unavailable: ${error.message}`;signal(null);}
 }
 async function reload() {
   refresh.disabled=true;
-  message.textContent='Reading the pilot survey and related parcels…';
+  message.textContent='Reading reports…';
+  document.getElementById('pilotFeedStatus').textContent='Refreshing progress…';
   try {snapshot=await fetchPilotResults();render();}
-  catch(error) {snapshot=null;cards.replaceChildren();signal(null);message.textContent=error.message;}
+  catch(error) {snapshot=null;cards.replaceChildren();signal(null);message.textContent=error.message;document.getElementById('pilotFeedStatus').textContent='Progress unavailable. Your selection is preserved; use Refresh progress to retry.';}
   finally {refresh.disabled=false;}
 }
 refresh.addEventListener('click',reload);

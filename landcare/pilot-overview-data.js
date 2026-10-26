@@ -9,5 +9,5 @@ export function pilotOverviewFeatures(features, detail) {
 }
 
 export function pilotStatusLabel(status) {
-  return ({fulfilled:'Reported Yes', 'follow-up':'Reported No only', unreported:'No pilot report',unknown:'Pilot results unavailable'})[status] || 'Pilot results unavailable';
+  return ({fulfilled:'Reported fulfilled', 'follow-up':'Needs follow-up', unreported:'Not reported',unknown:'Pilot results unavailable'})[status] || 'Pilot results unavailable';
 }
