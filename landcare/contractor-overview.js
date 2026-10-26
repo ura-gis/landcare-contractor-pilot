@@ -1,7 +1,7 @@
 import Map from "https://js.arcgis.com/4.30/@arcgis/core/Map.js";
 import { addFindMyLocation } from "./map-location.js?v=20261015-visible";
 import { fetchPilotReportPhotos } from './pilot-results-feed.js';
-import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261026-design3';
+import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261026-design4';
 import MapView from "https://js.arcgis.com/4.30/@arcgis/core/views/MapView.js";
 import Graphic from "https://js.arcgis.com/4.30/@arcgis/core/Graphic.js";
 import GraphicsLayer from "https://js.arcgis.com/4.30/@arcgis/core/layers/GraphicsLayer.js";
@@ -647,6 +647,7 @@ setTab(new URLSearchParams(window.location.search).get("tab") || "overview");
 document.getElementById("parcelSearch").addEventListener("input",renderOverview);
 setOverviewView("map");
 initializeMap().catch(() => { detailNode.textContent = "The progress map could not load. Use the submission tab to select an assigned parcel."; });
+
 
 
 

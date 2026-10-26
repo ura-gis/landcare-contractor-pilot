@@ -1,10 +1,10 @@
-import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261026-design3';
+import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261026-design4';
 import { parcelBlockLot } from "./parcel-label.js";
 import { ParcelSelection } from "./parcel-selection.js";
 import { currentPeriodLabel, previousPeriodLabel, assignmentPeriodLabel } from "./service-period.js";
 import { addFindMyLocation } from "./map-location.js?v=20261015-visible";
 import { buildPilotSurveyUrl } from "./pilot-survey-url.js";
-import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261026-design3";
+import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261026-design4";
 import {
   ASSIGNMENT_HISTORY_LAYER_URL,
   SURVEY123_PREFILL_FIELDS,
@@ -603,6 +603,7 @@ loadRecentMonths()
 initializeParcelMap().catch(() => {
   selectedParcelMeta.textContent = "The parcel map could not load. The assignment lookup remains available.";
 });
+
 
 
 
