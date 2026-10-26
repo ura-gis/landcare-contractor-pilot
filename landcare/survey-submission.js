@@ -1,12 +1,13 @@
 import { loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js";
-import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261026-loading1';
-import { parcelSymbol, labelSymbol, declutterMapLabels } from "./map-design.js?v=20261026-loading1";
+import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261026-filters1';
+import { parcelSymbol, labelSymbol, declutterMapLabels } from "./map-design.js?v=20261026-filters1";
+import {readParcelFilters,matchesParcelFilters,STATUS_LABELS} from "./parcel-filters.js";
 import { assignmentType,matchesAssignmentType } from "./assignment-type.js";
 import { parcelBlockLot } from "./parcel-label.js";
 import { ParcelSelection } from "./parcel-selection.js";
 import { currentPeriodLabel, previousPeriodLabel, assignmentPeriodLabel } from "./service-period.js";
 import { buildPilotSurveyUrl } from "./pilot-survey-url.js";
-import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261026-loading1";
+import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261026-filters1";
 import {
   ASSIGNMENT_HISTORY_LAYER_URL,
   SURVEY123_PREFILL_FIELDS,
@@ -226,7 +227,7 @@ function parcelLabelGraphic(assignment) {
 }
 
 function syncAvailableParcelLabels() {
-  declutterMapLabels(parcelMapView,availableParcelGraphics.filter(g=>matchesAssignmentType(g.attributes.maintenanceLevel,document.getElementById("assignmentType").value)),{focusedId:selection.has(selectedAssignment?.objectId)?selectedAssignment.objectId:'',selectedIds:new Set(selection.values().map(item=>String(item.objectId)))});
+  declutterMapLabels(parcelMapView,availableParcelGraphics.filter(g=>assignmentMatchesFilters(assignments.find(a=>a.objectId===String(g.attributes.assignmentObjectId)))),{focusedId:selection.has(selectedAssignment?.objectId)?selectedAssignment.objectId:'',selectedIds:new Set(selection.values().map(item=>String(item.objectId)))});
 }
 
 function setOptions(select, options, placeholder) {
@@ -396,6 +397,7 @@ function updatePeriodNotice() {
 }
 
 async function loadOrganizations() {
+  const requestedPeriod=monthSelect.value;
   const payload = await fetchJson(`${ASSIGNMENT_HISTORY_LAYER_URL}/query`, {
     f: "json",
     where: periodWhere("maintained_by IS NOT NULL"),
@@ -404,6 +406,7 @@ async function loadOrganizations() {
     returnDistinctValues: "true",
     orderByFields: "maintained_by ASC"
   });
+  if(requestedPeriod!==monthSelect.value) return false;
   const organizations = [...new Set((payload.features || []).map(({ attributes }) => attributes?.maintained_by).filter(Boolean))]
     .map((value) => ({ label: cleanOrganization(value), value }))
     .sort((left, right) => left.label.localeCompare(right.label));
@@ -419,6 +422,10 @@ async function loadParcels(organization) {
   const version = ++parcelLoadVersion;
   const requestedPeriod = monthSelect.value;
   resetSelection();
+  assignments=[];
+  clearAvailableParcels();
+  applyAssignmentScope();
+  emitContractorContext();
   parcelSelect.disabled = true;
   continueButton.disabled = true;
   setOptions(parcelSelect, [], "Loading assigned parcels...");
@@ -469,6 +476,8 @@ const buildSurveyUrl = buildPilotSurveyUrl;
 let confirmedMonth="",confirmedOrganization="";
 monthSelect.addEventListener("change", async () => {
   if (!await confirmReportChange()) {monthSelect.value=confirmedMonth;return;}
+  const previousOrganization=organizationSelect.value;
+  const changingTo=monthSelect.value;
   confirmedMonth=monthSelect.value;
   updatePeriodNotice();
   pilotStatuses=null;
@@ -478,14 +487,21 @@ monthSelect.addEventListener("change", async () => {
   assignments = [];
   clearAvailableParcels();
   organizationSelect.disabled = true;
+  organizationSelect.value='';
+  emitContractorContext();
+  applyAssignmentScope();
   parcelSelect.disabled = true;
   continueButton.disabled = true;
   setOptions(parcelSelect, [], "Choose an organization first");
   status.textContent = `Loading organizations for ${monthSelect.value}...`;
   try {
-    await loadOrganizations();
+    const loaded=await loadOrganizations();
+    if(loaded===false||changingTo!==monthSelect.value) return;
+    const matching=[...organizationSelect.options].find(option=>option.value===previousOrganization);
+    if(matching) {organizationSelect.value=matching.value;await loadParcels(matching.value);}
     syncContractorUrl();
   } catch (error) {
+    if(changingTo!==monthSelect.value) return;
     status.textContent = `Unable to load organizations: ${error.message}`;
   }
 });
@@ -507,9 +523,11 @@ organizationSelect.addEventListener("change", async () => {
     emitContractorContext();
     return;
   }
+  const requestedOrganization=organizationSelect.value, requestedPeriod=monthSelect.value;
   try {
-    await loadParcels(organizationSelect.value);
+    await loadParcels(requestedOrganization);
   } catch (error) {
+    if(requestedOrganization!==organizationSelect.value||requestedPeriod!==monthSelect.value) return;
     assignments = [];
     setOptions(parcelSelect, [], "Unable to load parcels");
     status.textContent = `Unable to load assigned parcels: ${error.message}`;
@@ -550,22 +568,28 @@ document.addEventListener('landcare:report-more',()=>{
   resetSelection();parcelSelect.value='';syncContractorUrl();
   parcelMapNode.scrollIntoView({behavior:'smooth',block:'center'});
 });
-function applyAssignmentScope() {
-  const scope=document.getElementById('assignmentType').value;
-  const query=document.getElementById('parcelSearch').value.toLowerCase().replace(/[^a-z0-9]/g,'');
-  for(const option of parcelSelect.options) {
-    const item=assignments.find(a=>a.objectId===option.value);
-    const matches=!item || (matchesAssignmentType(item,scope) && (!query || `${parcelBlockLot(item.parcelNumber)} ${item.address} ${item.parcelNumber}`.toLowerCase().replace(/[^a-z0-9]/g,'').includes(query)));
-    option.hidden=!matches;option.disabled=!matches||!option.value;
-  }
-  for(const graphic of availableParcelGraphics) graphic.visible=matchesAssignmentType(graphic.attributes.maintenanceLevel,scope);
-  document.getElementById('parcelSearchResult').textContent=query ? `${[...parcelSelect.options].filter(o=>o.value&&!o.hidden).length} matching parcels in the list. Map shows the selected assignment type.` : '';
+function assignmentMatchesFilters(item) {
+  return !!item&&matchesParcelFilters({...item,status:pilotStatuses?.[item.objectId]||'unknown'},readParcelFilters());
 }
-document.getElementById('parcelSearch').addEventListener('input',()=>{applyAssignmentScope();syncAvailableParcelLabels();});
-document.getElementById('assignmentType').addEventListener('change',()=>{
-  applyAssignmentScope();syncAvailableParcelLabels();
+function applyAssignmentScope() {
+  const filters=readParcelFilters();
+  const matching=assignments.filter(assignmentMatchesFilters);
+  const ids=new Set(matching.map(a=>a.objectId));
+  for(const option of parcelSelect.options) {
+    const match=!option.value||ids.has(option.value);option.hidden=!match;option.disabled=!match||!option.value;
+  }
+  if(parcelSelect.value&&!ids.has(parcelSelect.value)) {parcelSelect.value='';syncContractorUrl();}
+  for(const graphic of availableParcelGraphics) graphic.visible=ids.has(String(graphic.attributes.assignmentObjectId));
+  const hidden=selection.values().filter(item=>!ids.has(item.objectId)).length;
+  const summary=document.getElementById('parcelFilterSummary');
+  summary.textContent=organizationSelect.value ? `Showing ${matching.length} of ${assignments.length} parcels · ${filters.type==='all'?'Active + Request Only':filters.type==='request'?'Request Only':'Active'} · ${STATUS_LABELS[filters.status]}${filters.query?` · Search: ${filters.query}`:''}${!pilotStatuses&&filters.status!=='all'?' · Report status unavailable; refresh progress or choose All statuses.':''}` : 'Choose an organization to see matching parcels.';
+  document.getElementById('parcelSearchResult').textContent=matching.length ? `${matching.length} parcels match the filters in the map and list.` : assignments.length ? 'No parcels match. Use Clear filters to see all assigned parcels.' : '';
+  if(hidden) selectionHelp.textContent=`${hidden} selected parcel${hidden===1?' is':'s are'} hidden by the filters but still included in your report. Review the selection before continuing.`;
+}
+document.addEventListener('landcare:filters-changed',()=>{
+  renderSelection();
   const graphics=availableParcelGraphics.filter(g=>!g.attributes?.parcelLabel&&g.visible);
-  if(graphics.length) parcelMapView?.goTo(graphics,{duration:400}).catch(()=>{});
+  if(graphics.length) parcelMapView?.goTo(graphics,{duration:300}).catch(()=>{});
 });
 loadRecentMonths()
   .then(async () => {

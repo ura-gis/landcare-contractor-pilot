@@ -1,4 +1,4 @@
-import { summarizePilotReports } from './pilot-reporting.js?v=20261026-loading1';
+import { summarizePilotReports } from './pilot-reporting.js?v=20261026-filters1';
 import { fetchPilotResults } from './pilot-results-feed.js';
 
 const message=document.getElementById('pilotReportMessage');

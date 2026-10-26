@@ -47,6 +47,11 @@ body[data-page="contractor"] button {font:inherit;cursor:pointer;}
 body[data-page="contractor"] button:disabled {cursor:not-allowed;opacity:.55;}
 #pilotRefreshReports,#reloadApp,.report-more {min-height:44px;border:1px solid #9ab8c8;border-radius:8px;background:#fff;color:#00597d;padding:10px 14px;font-weight:650;}
 .feed-status {font-size:12px;margin:-6px 0 0;color:#526b7b;}
+body[data-page="contractor"] .filter-status-bar {order:0;position:static;max-width:none;border:1px solid #d6e2e8;border-radius:9px;box-shadow:none;padding:8px 12px;}
+.filter-summary {margin:0;font-size:13px;line-height:1.5;color:#314956;overflow-wrap:anywhere;}
+#clearParcelFilters {min-height:44px;background:#fff;color:#00597d;border:1px solid #9ab8c8;padding:10px 14px;border-radius:8px;}
+.contractor-list-table th[aria-sort="ascending"] button::after {content:' ↑';}
+.contractor-list-table th[aria-sort="descending"] button::after {content:' ↓';}
 body[data-page="contractor"] .contractor-panel {margin:0;}
 body[data-page="contractor"] .contractor-panel__head {padding:4px 0 12px;}
 body[data-page="contractor"] .contractor-panel__head h2 {font-size:20px;margin:0;}

@@ -1,9 +1,10 @@
 import { loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js";
-import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261026-loading1";
+import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261026-filters1";
+import {readParcelFilters,matchesParcelFilters,compareParcels,STATUS_LABELS} from "./parcel-filters.js";
 import { assignmentType,matchesAssignmentType } from "./assignment-type.js";
 import { fetchPilotReportPhotos } from './pilot-results-feed.js';
-import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261026-loading1';
-import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261026-loading1";
+import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261026-filters1';
+import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261026-filters1";
 import {
   cleanOrganization,
   fetchArcgisJson,
@@ -12,7 +13,7 @@ import {
   loadSurvey123EvidenceByPeriod,
   parcelDigits,
   survey123EvidenceMatchesAssignment
-} from "./survey-layer.js?v=20261026-loading1";
+} from "./survey-layer.js?v=20261026-filters1";
 
 let Map,MapView,Graphic,GraphicsLayer,BasemapToggle,Zoom,addFindMyLocation;
 const monthSelect = document.getElementById("assignmentMonth");
@@ -109,12 +110,7 @@ function statusFor(feature) {
 }
 
 function visibleFeatures() {
-  const query=(document.getElementById("parcelSearch")?.value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-  const matches=state.features.filter(feature=>matchesAssignmentType(feature.properties,document.getElementById('assignmentType').value)&&(!query || `${featureBlockLot(feature)} ${feature.properties.address || ""} ${feature.properties.parcel_number || feature.properties.parcel_key || ""}`.toLowerCase().replace(/[^a-z0-9]/g, "").includes(query)));
-  return state.statusFilter === "all"
-    ? matches
-    : matches.filter((feature) => state.statusFilter==='open'
-      ? assignmentType(feature.properties)==='Active' && ['follow-up','unreported'].includes(statusFor(feature)) : statusFor(feature) === state.statusFilter);
+  return state.features.filter(feature=>matchesParcelFilters(feature,readParcelFilters()));
 }
 
 function escapeHtml(value) {
@@ -284,16 +280,11 @@ function renderMap() {
 
 function renderList() {
   if (!listNode) return;
-  const features = [...visibleFeatures()].sort((left, right) => {
-    const leftProps = left.properties || {};
-    const rightProps = right.properties || {};
-    const key = state.listSort.key;
-    const leftValue = key === "block_lot" ? featureBlockLot(left) : key === "status" ? statusFor(left) : leftProps[key] || "";
-    const rightValue = key === "block_lot" ? featureBlockLot(right) : key === "status" ? statusFor(right) : rightProps[key] || "";
-    return String(leftValue).localeCompare(String(rightValue), undefined, { numeric: true, sensitivity: "base" }) *
-      (state.listSort.direction === "asc" ? 1 : -1);
-  });
-  listTitleNode.textContent = state.statusFilter === "all" ? "All assigned parcels" : state.statusFilter==='open' ? 'Outstanding fulfillment' : pilotStatusLabel(state.statusFilter);
+  const features=[...visibleFeatures()].sort((a,b)=>compareParcels(a,b,state.listSort.key,state.listSort.direction));
+  for(const button of document.querySelectorAll('[data-contractor-sort]')) {
+    button.closest('th').setAttribute('aria-sort',button.dataset.contractorSort===state.listSort.key?(state.listSort.direction==='asc'?'ascending':'descending'):'none');
+  }
+  listTitleNode.textContent = state.statusFilter === "all" ? "All assigned parcels" : state.statusFilter==='open' ? 'Active remaining' : pilotStatusLabel(state.statusFilter);
   listSummaryNode.textContent = state.organization
     ? `${formatNumber(features.length)} shown · sorted by ${state.listSort.key === "block_lot" ? "block & lot" : state.listSort.key.replace("_", " ")}`
     : "Choose an organization to view assigned parcels.";
@@ -311,10 +302,15 @@ function renderList() {
         <td><button type="button" class="contractor-list-select" data-contractor-list-id="${escapeHtml(props.objectid)}">View reports / report visit</button></td>
       </tr>`;
     }).join("")
-    : `<tr><td colspan="6" class="contractor-list-empty">No ${state.statusFilter === "all" ? "assigned" : state.statusFilter} parcels match this view.</td></tr>`;
+    : `<tr><td colspan="6" class="contractor-list-empty">No parcels match these filters. Use Clear filters to see all assigned parcels.</td></tr>`;
 }
 
 function renderOverview() {
+  state.statusFilter=readParcelFilters().status;
+  if(state.selectedObjectId&&!visibleFeatures().some(f=>String(f.properties.objectid)===state.selectedObjectId)) {
+    state.selectedObjectId='';detailVersion++;
+    detailNode.textContent='The inspected parcel is outside the current filters. Change or clear filters to see it again.';
+  }
   renderMap();
   renderList();
   document.querySelectorAll("[data-contractor-status]").forEach((button) => {
@@ -500,6 +496,10 @@ async function refreshOverview() {
   const month=state.month, organization=state.organization;
   if(!month || !organization) return setEmptyState('Choose an organization to view progress');
   pilotDetail=null;
+  state.features=[];state.selectedObjectId='';state.layer?.removeAll();
+  assignedNode.textContent='—';submittedNode.textContent='—';openNode.textContent='—';
+  document.getElementById('contractorUnreportedKpi').textContent='—';rateNode.hidden=true;
+  renderList();
   detailVersion++;
   titleNode.textContent=`${organization} pilot progress`;
   freshnessNode.textContent=`Loading ${month} assignments…`;
@@ -558,14 +558,6 @@ async function initializeMap() {
   refreshOverview();
 }
 
-document.querySelectorAll("[data-contractor-status]").forEach((button) => button.addEventListener("click", () => {
-  state.statusFilter = button.dataset.contractorStatus || "all";
-  if (state.selectedObjectId && !visibleFeatures().some((feature) => String(feature.properties.objectid) === state.selectedObjectId)) {
-    state.selectedObjectId = "";
-  }
-  renderOverview();
-}));
-
 document.querySelectorAll("[data-contractor-view]").forEach((button) => button.addEventListener("click", () => {
   setOverviewView(button.dataset.contractorView);
 }));
@@ -613,8 +605,12 @@ window.addEventListener("popstate", () => {
 });
 
 setTab(new URLSearchParams(window.location.search).get("tab") || "overview");
-document.getElementById("parcelSearch").addEventListener("input",renderOverview);
-document.getElementById("assignmentType").addEventListener("change",()=>{state.statusFilter='all';renderOverview();});
+document.addEventListener('landcare:filters-changed',()=>{
+  if(state.view) state.view.popup?.close();
+  renderOverview();
+  const graphics=state.layer?.graphics.filter(g=>!g.attributes?.label).map(g=>g.geometry);
+  if(graphics?.length) state.view?.goTo(graphics,{duration:300}).catch(()=>{});
+});
 setOverviewView("map");
 initializeMap().catch(() => { detailNode.textContent = "The progress map could not load. Use the submission tab to select an assigned parcel."; });
 

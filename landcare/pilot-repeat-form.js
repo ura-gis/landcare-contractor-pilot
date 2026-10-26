@@ -4,7 +4,7 @@ import { initializeRepeat } from './pilot-repeat-initialize.js';
 import { assignmentType } from './assignment-type.js';
 import { parcelBlockLot } from './parcel-label.js';
 import { assignmentPeriodLabel } from './service-period.js';
-import { setReportDirty, setReportPending, clearReportGuard } from './report-guard.js?v=20261026-loading1';
+import { setReportDirty, setReportPending, clearReportGuard } from './report-guard.js?v=20261026-filters1';
 
 let sdkPromise;
 async function loadSurveySdk() {
