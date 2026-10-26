@@ -1,15 +1,9 @@
-import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261026-map1";
+import { loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js";
+import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261026-loading1";
 import { assignmentType,matchesAssignmentType } from "./assignment-type.js";
-import Map from "https://js.arcgis.com/4.30/@arcgis/core/Map.js";
-import { addFindMyLocation } from "./map-location.js?v=20261015-visible";
 import { fetchPilotReportPhotos } from './pilot-results-feed.js';
-import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261026-map1';
-import MapView from "https://js.arcgis.com/4.30/@arcgis/core/views/MapView.js";
-import Graphic from "https://js.arcgis.com/4.30/@arcgis/core/Graphic.js";
-import GraphicsLayer from "https://js.arcgis.com/4.30/@arcgis/core/layers/GraphicsLayer.js";
-import BasemapToggle from "https://js.arcgis.com/4.30/@arcgis/core/widgets/BasemapToggle.js";
-import Zoom from "https://js.arcgis.com/4.30/@arcgis/core/widgets/Zoom.js";
-import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20260803-raw-completion-v2";
+import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261026-loading1';
+import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261026-loading1";
 import {
   cleanOrganization,
   fetchArcgisJson,
@@ -18,8 +12,9 @@ import {
   loadSurvey123EvidenceByPeriod,
   parcelDigits,
   survey123EvidenceMatchesAssignment
-} from "./survey-layer.js?v=20260803-raw-completion-v2";
+} from "./survey-layer.js?v=20261026-loading1";
 
+let Map,MapView,Graphic,GraphicsLayer,BasemapToggle,Zoom,addFindMyLocation;
 const monthSelect = document.getElementById("assignmentMonth");
 const organizationSelect = document.getElementById("assignmentOrganization");
 const parcelSelect = document.getElementById("assignmentParcel");
@@ -510,9 +505,10 @@ async function refreshOverview() {
   freshnessNode.textContent=`Loading ${month} assignments…`;
   detailNode.textContent='Loading assigned parcels and pilot reports…';
   try {
-    const data=await fetchAssignmentGeojsonForPeriod(month);
+    const data=await fetchAssignmentGeojsonForPeriod(month,organizationSelect.value || organization);
     let features=data.features.filter(feature=>cleanOrganization(feature.properties.organization)===organization && ['Active','Request Only'].includes(feature.properties.maintenance_level));
-    features=await enrichWithParcelReference(features).catch(()=>features);
+    // Optional district/reference enrichment must not delay usable parcels.
+    const referenceFeatures=features;
     if(version!==overviewVersion || state.month!==month || state.organization!==organization) return;
     state.features=pilotOverviewFeatures(features,pilotDetail);
     state.selectedObjectId='';
@@ -523,6 +519,10 @@ async function refreshOverview() {
     const geometries=state.layer?.graphics.filter(graphic=>!graphic.attributes?.label).map(graphic=>graphic.geometry);
     if(geometries?.length) state.view?.goTo(geometries,{duration:450}).catch(()=>{});
     document.dispatchEvent(new CustomEvent('landcare:pilot-overview-ready'));
+    enrichWithParcelReference(referenceFeatures).then(enriched=>{
+      if(version!==overviewVersion) return;
+      state.features=pilotOverviewFeatures(enriched,pilotDetail);renderOverview();
+    }).catch(()=>{});
   } catch(error) {
     if(version!==overviewVersion) return;
     setEmptyState('Pilot progress unavailable');
@@ -530,6 +530,9 @@ async function refreshOverview() {
   }
 }
 async function initializeMap() {
+  const modules=await loadMapModules();
+  [Map,MapView,Graphic,GraphicsLayer,BasemapToggle,Zoom]=modules.slice(0,6).map(module=>module.default);
+  addFindMyLocation=modules[6].addFindMyLocation;
   state.layer = new GraphicsLayer();
   state.map = new Map({ basemap: "gray-vector", layers: [state.layer] });
   state.view = new MapView({
@@ -539,7 +542,7 @@ async function initializeMap() {
     zoom: 12,
     ui: { components: [] }
   });
-  await state.view.when();
+  await withTimeout(state.view.when(),"The progress map");
   addFindMyLocation(state.view);
   state.view.ui.add(new Zoom({ view: state.view }), "bottom-right");
   state.view.ui.add(new BasemapToggle({ view: state.view, nextBasemap: "hybrid" }), "bottom-right");
@@ -614,6 +617,7 @@ document.getElementById("parcelSearch").addEventListener("input",renderOverview)
 document.getElementById("assignmentType").addEventListener("change",()=>{state.statusFilter='all';renderOverview();});
 setOverviewView("map");
 initializeMap().catch(() => { detailNode.textContent = "The progress map could not load. Use the submission tab to select an assigned parcel."; });
+
 
 
 

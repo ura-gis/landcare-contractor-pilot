@@ -1,8 +1,9 @@
+import { fetchWithTimeout } from './loading.js';
 const ITEM = '050caf61aecb400596b340e8ae4bdcb2';
 async function json(url, params={}) {
   const target=new URL(url);
   target.search=new URLSearchParams({f:'json',...params});
-  const response=await fetch(target);
+  const response=await fetchWithTimeout(target);
   if(!response.ok) throw new Error(`Pilot results request failed (${response.status}).`);
   const result=await response.json();
   if(result.error) throw new Error(`Pilot results are not readable: ${result.error.message}. Check public results sharing.`);

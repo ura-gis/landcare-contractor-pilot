@@ -1,4 +1,4 @@
-import { dateFromMillis, fetchArcgisJson } from "./survey-layer.js?v=20260803-raw-completion-v2";
+import { dateFromMillis, fetchArcgisJson } from "./survey-layer.js?v=20261026-loading1";
 
 export const ASSIGNMENT_CURRENT_LAYER_URL =
   "https://services1.arcgis.com/0DMNBNaacQNEfN4H/arcgis/rest/services/gisdb_gis_regrid_bundle_assignments_current_period/FeatureServer/0";
@@ -130,12 +130,12 @@ async function fetchAssignmentLayerFeatures(layerUrl, where = "1=1") {
 // Contractor-facing views load one service period at a time. Keeping this
 // adapter here ensures their polygons and normalized contractor identity use
 // the exact same source contract as Monitoring.
-export async function fetchAssignmentGeojsonForPeriod(periodLabel) {
+export async function fetchAssignmentGeojsonForPeriod(periodLabel, organization="") {
   const safePeriod = String(periodLabel || "").replace(/'/g, "''");
   if (!safePeriod) return { type: "FeatureCollection", features: [] };
   const features = await fetchAssignmentLayerFeatures(
     ASSIGNMENT_HISTORY_LAYER_URL,
-    `period_label = '${safePeriod}'`
+    `period_label = '${safePeriod}'${organization ? ` AND maintained_by = '${String(organization).replace(/'/g, "''")}'` : ''}`
   );
   return {
     type: "FeatureCollection",

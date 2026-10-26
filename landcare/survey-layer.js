@@ -1,5 +1,7 @@
 import { SURVEY123_EVIDENCE_LAYER_URL } from "./survey-submission-config.js";
 
+import { fetchWithTimeout } from "./loading.js";
+
 export const SURVEY_LAYER_URL =
   "https://services1.arcgis.com/0DMNBNaacQNEfN4H/arcgis/rest/services/regrid_surveys/FeatureServer/0";
 export const SURVEY_AGOL_ITEM_ID = "7a2e1d9bacba461296c54a63f104cf51";
@@ -65,7 +67,7 @@ export function dateFromMillis(value) {
 }
 
 export async function fetchArcgisJson(url, params) {
-  const response = await fetch(`${url}?${new URLSearchParams(params).toString()}`);
+  const response = await fetchWithTimeout(`${url}?${new URLSearchParams(params).toString()}`);
   if (!response.ok) throw new Error(`ArcGIS request failed: ${response.status}`);
   const payload = await response.json();
   if (payload.error) throw new Error(payload.error.message || "ArcGIS request failed");

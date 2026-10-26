@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>LandCare Contractor Portal — Pilot</title>
     <link rel="stylesheet" href="https://js.arcgis.com/4.30/@arcgis/core/assets/esri/themes/light/main.css" />
-    <link rel="stylesheet" href="../landcare/app.css?v=20261026-map1" />
-    <link rel="stylesheet" href="../landcare/field-workspace.css?v=20261026-map1" />
+    <link rel="stylesheet" href="../landcare/app.css?v=20261026-loading1" />
+    <link rel="stylesheet" href="../landcare/field-workspace.css?v=20261026-loading1" />
   </head>
   <body data-page="contractor">
     <header class="app-header">
@@ -63,7 +63,7 @@
       <div class="workspace-tools">
         <label class="parcel-search scope-selector"><span>Show parcels</span><select id="assignmentType"><option value="all">Active + Request Only</option><option value="active">Active only</option><option value="request">Request Only</option></select></label>
         <label class="parcel-search"><span>Find a parcel</span><input type="search" id="parcelSearch" placeholder="Block &amp; lot or address" autocomplete="off" /></label>
-        <button type="button" id="pilotRefreshReports">Refresh progress</button>
+        <button type="button" id="pilotRefreshReports">Refresh progress</button><button type="button" id="reloadApp">Reload app</button>
       </div>
       <p id="pilotFeedStatus" class="feed-status" role="status">Loading reports…</p>
       <section class="contractor-panel is-active" data-contractor-panel="overview" aria-label="Completion Overview">
@@ -191,11 +191,12 @@
         <div class="discard-actions"><button value="keep" autofocus>Keep editing</button><button value="discard">Discard report</button></div>
       </form>
     </dialog>
-    <script type="module" src="../landcare/survey-submission.js?v=20261026-map1"></script>
-    <script type="module" src="../landcare/contractor-overview.js?v=20261026-map1"></script>
-    <script type="module" src="../landcare/pilot-reporting-ui.js?v=20261026-map1"></script>
+    <script type="module" src="../landcare/survey-submission.js?v=20261026-loading1"></script>
+    <script type="module" src="../landcare/contractor-overview.js?v=20261026-loading1"></script>
+    <script type="module" src="../landcare/pilot-reporting-ui.js?v=20261026-loading1"></script>
   </body>
 </html>
+
 
 
 

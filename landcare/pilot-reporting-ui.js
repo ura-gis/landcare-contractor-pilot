@@ -1,4 +1,4 @@
-import { summarizePilotReports } from './pilot-reporting.js?v=20261026-map1';
+import { summarizePilotReports } from './pilot-reporting.js?v=20261026-loading1';
 import { fetchPilotResults } from './pilot-results-feed.js';
 
 const message=document.getElementById('pilotReportMessage');
@@ -47,3 +47,4 @@ document.addEventListener('landcare:contractor-context',event=>{
 document.addEventListener('landcare:pilot-assignments',event=>{context=event.detail;render();});
 document.addEventListener('landcare:pilot-overview-ready',render);
 reload();
+

@@ -1,12 +1,13 @@
+import { withTimeout } from './loading.js';
 import { buildRepeatQuestionValues, verifyRepeatValues } from './pilot-repeat-data.js';
 import { initializeRepeat } from './pilot-repeat-initialize.js';
 import { assignmentType } from './assignment-type.js';
 import { parcelBlockLot } from './parcel-label.js';
 import { assignmentPeriodLabel } from './service-period.js';
-import { setReportDirty, setReportPending, clearReportGuard } from './report-guard.js?v=20261026-map1';
+import { setReportDirty, setReportPending, clearReportGuard } from './report-guard.js?v=20261026-loading1';
 
 let sdkPromise;
-function loadSurveySdk() {
+async function loadSurveySdk() {
   if(window.Survey123WebForm) return Promise.resolve(window.Survey123WebForm);
   if(!sdkPromise) sdkPromise=new Promise((resolve,reject)=>{
     const script=document.createElement('script');script.src='https://survey123.arcgis.com/api/jsapi/';
@@ -14,7 +15,7 @@ function loadSurveySdk() {
     script.onerror=()=>{sdkPromise=null;reject(new Error('Unable to load Survey123. Check your connection and try again.'));};
     document.head.append(script);
   });
-  return sdkPromise;
+  try {return await withTimeout(sdkPromise,'The survey form');} catch(error) {sdkPromise=null;throw error;}
 }
 
 export async function openPilotRepeatForm(container,assignments,isCurrent) {
@@ -49,6 +50,9 @@ export async function openPilotRepeatForm(container,assignments,isCurrent) {
   });
   container.replaceChildren(summary,message,host,submit,more,check,retry);
   let form,completed=false,ready=false,pending=false,initialization,waiting;
+  const loadingTimer=setTimeout(()=>{
+    if(!ready&&isCurrent()) {message.textContent='The survey is taking too long to load. Your parcel selection is preserved. Reopen the report or use Reload app to retry.';document.body?.classList.remove('report-open');}
+  },30000);
   const resize=data=>{
     if(!isCurrent()||completed) return;
     const height=Number(data?.contentHeight ?? data?.height);
@@ -85,10 +89,10 @@ export async function openPilotRepeatForm(container,assignments,isCurrent) {
           '& .question-label':{fontSize:'17px !important'}
         });
         form.setTheme({form:{backgroundColor:'#ffffff',primaryColor:'#007eae',primaryTextColor:'#ffffff',textColor:'#183b50'},webpage:{backgroundColor:'#ffffff'}});
-        resize(data);ready=true;setReportDirty();submit.disabled=false;message.textContent='Answer the question, add a photo, and submit.';
+        clearTimeout(loadingTimer);resize(data);ready=true;setReportDirty();submit.disabled=false;message.textContent='Answer the question, add a photo, and submit.';
         // Protect an opened form conservatively: cross-origin value-change
         // messages can arrive after a quick click on another page control.
-      } catch(error) {if(isCurrent()) message.textContent=`Report could not load: ${error.message}`;}
+      } catch(error) {clearTimeout(loadingTimer);if(isCurrent()) {document.body?.classList.remove('report-open');message.textContent=`Report could not load: ${error.message} Reopen the report to retry.`;}}
     },
     onFormSubmit:()=>{if(!isCurrent()||completed) return;pending=true;setReportPending(true);submit.disabled=true;submit.textContent='Submitting…';message.textContent='Sending your report and photos. Please keep this page open.';},
     onFormSubmitted:()=>{
@@ -121,6 +125,7 @@ export async function openPilotRepeatForm(container,assignments,isCurrent) {
     finally {if(!sent&&isCurrent()&&!completed) {pending=false;setReportPending(false);submit.disabled=false;submit.textContent=submitLabel;}}
   });
 }
+
 
 
 

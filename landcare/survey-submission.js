@@ -1,21 +1,19 @@
-import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261026-map1';
-import { parcelSymbol, labelSymbol, declutterMapLabels } from "./map-design.js?v=20261026-map1";
+import { loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js";
+import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261026-loading1';
+import { parcelSymbol, labelSymbol, declutterMapLabels } from "./map-design.js?v=20261026-loading1";
 import { assignmentType,matchesAssignmentType } from "./assignment-type.js";
 import { parcelBlockLot } from "./parcel-label.js";
 import { ParcelSelection } from "./parcel-selection.js";
 import { currentPeriodLabel, previousPeriodLabel, assignmentPeriodLabel } from "./service-period.js";
-import { addFindMyLocation } from "./map-location.js?v=20261015-visible";
 import { buildPilotSurveyUrl } from "./pilot-survey-url.js";
-import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261026-map1";
+import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261026-loading1";
 import {
   ASSIGNMENT_HISTORY_LAYER_URL,
   SURVEY123_PREFILL_FIELDS,
   SURVEY123_SHARE_URL
 } from "./survey-submission-config.js";
-import Map from "https://js.arcgis.com/4.30/@arcgis/core/Map.js";
-import MapView from "https://js.arcgis.com/4.30/@arcgis/core/views/MapView.js";
-import Graphic from "https://js.arcgis.com/4.30/@arcgis/core/Graphic.js";
 
+let Map,MapView,Graphic,addFindMyLocation;
 const container = document.getElementById("surveyEmbed");
 const link = document.getElementById("openSurveyLink");
 const lookupForm = document.getElementById("assignmentLookupForm");
@@ -238,7 +236,7 @@ function setOptions(select, options, placeholder) {
 async function fetchJson(url, params) {
   const request = new URL(url);
   Object.entries(params).forEach(([key, value]) => request.searchParams.set(key, value));
-  const response = await fetch(request);
+  const response = await fetchWithTimeout(request);
   if (!response.ok) throw new Error(`Assignment service returned ${response.status}`);
   const payload = await response.json();
   if (payload.error) throw new Error(payload.error.message || "Assignment service is unavailable");
@@ -246,6 +244,9 @@ async function fetchJson(url, params) {
 }
 
 async function initializeParcelMap() {
+  const modules=await loadMapModules();
+  [Map,MapView,Graphic]=modules.slice(0,3).map(module=>module.default);
+  addFindMyLocation=modules[6].addFindMyLocation;
   parcelMapView = new MapView({
     container: parcelMapNode,
     map: new Map({ basemap: "gray-vector" }),
@@ -253,7 +254,7 @@ async function initializeParcelMap() {
     zoom: 11,
     ui: { components: ["zoom"] }
   });
-  await parcelMapView.when();
+  await withTimeout(parcelMapView.when(),"The parcel map");
   addFindMyLocation(parcelMapView);
   parcelMapView.watch("stationary",syncAvailableParcelLabels);
   parcelMapView.watch("size",syncAvailableParcelLabels);
@@ -353,7 +354,7 @@ async function selectAssignment(objectId, { fromMap = false } = {}) {
 async function loadRecentMonths() {
   const payload = await fetchJson(`${ASSIGNMENT_HISTORY_LAYER_URL}/query`, {
     f: "json",
-    where: "period_label IS NOT NULL",
+    where: `period_label IN ('${currentPeriodLabel()}','${previousPeriodLabel(currentPeriodLabel())}')`,
     outFields: "period_label",
     returnGeometry: "false",
     returnDistinctValues: "true",
@@ -542,6 +543,7 @@ lookupForm.addEventListener("submit", async (event) => {
     }
   }
 });
+document.getElementById('reloadApp').addEventListener('click',async()=>{if(await confirmReportChange()) location.reload();});
 document.getElementById('pilotDockContinue').addEventListener('click',()=>lookupForm.requestSubmit());
 document.addEventListener('landcare:tab-changed',renderSelection);
 document.addEventListener('landcare:report-more',()=>{
@@ -591,9 +593,11 @@ loadRecentMonths()
     status.textContent = `Unable to load the assignment bundle: ${error.message}`;
   });
 
-initializeParcelMap().catch(() => {
-  selectedParcelMeta.textContent = "The parcel map could not load. The assignment lookup remains available.";
+initializeParcelMap().catch((error) => {
+  selectedParcelMeta.textContent = `${error.message} You can still select parcels from the list and report service.`;
+  parcelMapNode.textContent="Map unavailable. Use the parcel list above, or Reload app to retry.";
 });
+
 
 
 
