@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>LandCare Contractor Portal — Pilot</title>
     <link rel="stylesheet" href="https://js.arcgis.com/4.30/@arcgis/core/assets/esri/themes/light/main.css" />
-    <link rel="stylesheet" href="../landcare/app.css?v=20261026-design4" />
-    <link rel="stylesheet" href="../landcare/field-workspace.css?v=20261026-design4" />
+    <link rel="stylesheet" href="../landcare/app.css?v=20261026-map1" />
+    <link rel="stylesheet" href="../landcare/field-workspace.css?v=20261026-map1" />
   </head>
   <body data-page="contractor">
     <header class="app-header">
@@ -44,6 +44,7 @@
       </section>
 
       <section class="progress-summary" aria-label="Assignment progress and selection">
+        <p class="map-scope-note">Monthly progress · Active parcels only</p>
         <div class="contractor-progress-cards pilot-shared-progress" aria-live="polite">
           <article class="contractor-progress-card assigned"><span>Assigned</span><strong id="contractorAssignedKpi">—</strong></article>
           <article class="contractor-progress-card submitted"><span>Reported fulfilled</span><strong id="contractorSubmittedKpi">—</strong></article>
@@ -55,7 +56,12 @@
           <div class="contractor-rate__track"><i id="contractorRateBar"></i></div>
         </div>
       </section>
+      <section class="request-progress" aria-label="Request Only reports">
+        <strong>Request Only</strong> <span id="requestOnlyCounts">Choose an organization to see these parcels.</span>
+        <small>Report service only after the LandCare team asks you to. Separate from Active monthly completion.</small>
+      </section>
       <div class="workspace-tools">
+        <label class="parcel-search scope-selector"><span>Show parcels</span><select id="assignmentType"><option value="all">Active + Request Only</option><option value="active">Active only</option><option value="request">Request Only</option></select></label>
         <label class="parcel-search"><span>Find a parcel</span><input type="search" id="parcelSearch" placeholder="Block &amp; lot or address" autocomplete="off" /></label>
         <button type="button" id="pilotRefreshReports">Refresh progress</button>
       </div>
@@ -81,6 +87,8 @@
             <button type="button" aria-pressed="false" data-contractor-status="unreported"><i class="open"></i>Not reported</button>
             <button type="button" aria-pressed="false" data-contractor-status="open">All remaining</button>
             <span><i class="selected"></i>Selected parcel</span>
+            <span class="map-label-hint">Zoom in for parcel labels</span>
+            <span><i class="request-only-key"></i>Dashed = Request Only</span>
           </div>
           <div id="contractorParcelDetail" class="contractor-parcel-detail">Choose an organization, then select a parcel to see its reports.</div>
         </section>
@@ -98,6 +106,7 @@
                 <tr>
                   <th><button type="button" data-contractor-sort="block_lot">Block &amp; lot</button></th>
                   <th><button type="button" data-contractor-sort="address">Address</button></th>
+                  <th><button type="button" data-contractor-sort="maintenance_level">Type</button></th>
                   <th><button type="button" data-contractor-sort="council_district">District</button></th>
                   <th><button type="button" data-contractor-sort="status">Status</button></th>
                   <th><span class="sr-only">Action</span></th>
@@ -147,6 +156,8 @@
               <span id="pilotFulfilledKey" hidden><i class="pilot-key-submitted"></i>Reported fulfilled</span>
               <span id="pilotFollowUpKey" hidden><i class="pilot-key-followup"></i>Needs follow-up</span>
               <span><i class="pilot-key-selected"></i>Selected for this report</span>
+              <span class="map-label-hint">Zoom in for parcel labels</span>
+              <span><i class="request-only-key"></i>Dashed = Request Only</span>
             </div>
             <p id="selectedParcelMeta">The bright blue boundary marks the parcel selected for this service record.</p>
           </aside>
@@ -180,11 +191,12 @@
         <div class="discard-actions"><button value="keep" autofocus>Keep editing</button><button value="discard">Discard report</button></div>
       </form>
     </dialog>
-    <script type="module" src="../landcare/survey-submission.js?v=20261026-design4"></script>
-    <script type="module" src="../landcare/contractor-overview.js?v=20261026-design4"></script>
-    <script type="module" src="../landcare/pilot-reporting-ui.js?v=20261026-design4"></script>
+    <script type="module" src="../landcare/survey-submission.js?v=20261026-map1"></script>
+    <script type="module" src="../landcare/contractor-overview.js?v=20261026-map1"></script>
+    <script type="module" src="../landcare/pilot-reporting-ui.js?v=20261026-map1"></script>
   </body>
 </html>
+
 
 
 

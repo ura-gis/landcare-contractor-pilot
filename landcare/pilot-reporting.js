@@ -1,4 +1,5 @@
 import { ASSIGNMENT_HISTORY_LAYER_URL } from './survey-submission-config.js';
+import { assignmentType } from './assignment-type.js';
 
 const pin = value => String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 const guid = value => String(value || '').trim().replace(/[{}]/g, '').toLowerCase();
@@ -37,8 +38,16 @@ export function summarizePilotReports(parents, children, assignments, {period, o
     if(p.did_you_fulfill_your_obligation==='Yes') fulfilled.add(id);
   }
   for(const id of reported) statuses[id]=fulfilled.has(id)?'fulfilled':'follow-up';
-  return {assigned:scoped.length,events:matchedEvents.size,parcelVisits:pairs.size,reported:reported.size,fulfilled:fulfilled.size,
-    followUp:reported.size-fulfilled.size,unreported:scoped.length-reported.size,
-    outstanding:scoped.length-fulfilled.size,statuses,recordsByAssignment,qa};
+  const totals=type=>{
+    const rows=scoped.filter(a=>assignmentType(a)===type);
+    const ids=rows.map(a=>String(a.objectId));
+    const visits=ids.flatMap(id=>recordsByAssignment[id]);
+    const reportedCount=ids.filter(id=>reported.has(id)).length;
+    const fulfilledCount=ids.filter(id=>fulfilled.has(id)).length;
+    return {assigned:ids.length,events:new Set(visits.map(r=>r.eventId)).size,parcelVisits:visits.length,
+      reported:reportedCount,fulfilled:fulfilledCount,followUp:reportedCount-fulfilledCount,
+      unreported:ids.length-reportedCount,outstanding:ids.length-fulfilledCount};
+  };
+  return {...totals('Active'),requestOnly:totals('Request Only'),statuses,recordsByAssignment,qa};
 }
 

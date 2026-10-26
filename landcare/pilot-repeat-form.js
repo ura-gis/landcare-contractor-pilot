@@ -1,8 +1,9 @@
 import { buildRepeatQuestionValues, verifyRepeatValues } from './pilot-repeat-data.js';
 import { initializeRepeat } from './pilot-repeat-initialize.js';
+import { assignmentType } from './assignment-type.js';
 import { parcelBlockLot } from './parcel-label.js';
 import { assignmentPeriodLabel } from './service-period.js';
-import { setReportDirty, setReportPending, clearReportGuard } from './report-guard.js?v=20261026-design4';
+import { setReportDirty, setReportPending, clearReportGuard } from './report-guard.js?v=20261026-map1';
 
 let sdkPromise;
 function loadSurveySdk() {
@@ -25,10 +26,10 @@ export async function openPilotRepeatForm(container,assignments,isCurrent) {
   const context=document.createElement('p');context.textContent=`${assignments[0].organization} · ${assignmentPeriodLabel(assignments[0].period)}`;
   const parcels=document.createElement('details'),toggle=document.createElement('summary'),list=document.createElement('ul');
   toggle.textContent=`Review selected parcels (${assignments.length})`;
-  for(const item of assignments) {const li=document.createElement('li');li.textContent=`${parcelBlockLot(item.parcelNumber)} · ${item.address}`;list.append(li);}
+  for(const item of assignments) {const li=document.createElement('li');li.textContent=`${parcelBlockLot(item.parcelNumber)} · ${item.address} · ${assignmentType(item)}`;list.append(li);}
   parcels.append(toggle,list);
   const guidance=document.createElement('p');guidance.className='report-guidance';
-  guidance.textContent='The answer and photos cover every selected parcel. For No, explain what prevented completion in Comments and photograph the current conditions. For Yes, photograph the completed work. Use separate reports for different outcomes.';
+  guidance.textContent='Report Request Only parcels only after the LandCare team asks you to service them. The answer and photos cover every selected parcel. For No, explain what prevented completion in Comments and photograph the current conditions. For Yes, photograph the completed work. Use separate reports for different outcomes.';
   summary.append(heading,context,parcels,guidance);
   const host=document.createElement('div');host.id=`pilot-repeat-${crypto.randomUUID()}`;host.className='pilot-form-host';
   const message=document.createElement('p');message.className='report-feedback';message.setAttribute('role','status');message.textContent='Preparing your service report…';
@@ -120,5 +121,6 @@ export async function openPilotRepeatForm(container,assignments,isCurrent) {
     finally {if(!sent&&isCurrent()&&!completed) {pending=false;setReportPending(false);submit.disabled=false;submit.textContent=submitLabel;}}
   });
 }
+
 
 

@@ -19,6 +19,18 @@ summary {cursor:pointer;min-height:32px;line-height:1.6;font-weight:650;}
 .period-range {font-weight:650;}
 .late-period-notice {border-left:4px solid #ac5416;background:#fff3e7;padding:10px 12px;color:#7d3b0d;font-weight:650;}
 .progress-summary {margin:0;}
+.map-scope-note {margin:0 0 8px;font-size:12px;font-weight:650;color:#526b7b;}
+.request-progress {font-size:13px;padding:10px 14px;background:#f2eff6;border:1px solid #d5ccdf;border-radius:9px;color:#51435e;}
+.request-progress small {display:block;font-size:12px;line-height:1.5;margin-top:4px;}
+.scope-selector {flex:0 0 220px;}
+.scope-selector select {min-height:44px;border:1px solid #bccfd9;border-radius:8px;background:#fff;color:#183b50;font-size:14px;max-width:100%;}
+.request-only-key {background:#e7e2ee !important;border:2px dashed #756789 !important;}
+.assignment-type-badge {display:inline-block;background:#f2eff6;border-radius:5px;color:#51435e;padding:3px 6px;white-space:nowrap;font-size:12px;}
+.map-label-hint {font-size:12px;color:#526b7b;font-weight:normal;}
+body[data-page="contractor"] .contractor-map-key i.submitted,.pilot-selection-legend .pilot-key-submitted {background:rgba(85,157,105,.58);border-color:#39734b;}
+body[data-page="contractor"] .contractor-map-key i.follow-up,.pilot-selection-legend .pilot-key-followup {background:rgba(232,181,112,.48);border-color:#a77836;}
+.pilot-selection-legend .pilot-key-assigned,body[data-page="contractor"] .contractor-map-key i.open {background:rgba(230,237,240,.4);border-color:#7a8b94;}
+.pilot-selection-legend .pilot-key-selected {background:rgba(0,139,194,.26);border:2px solid #006a96;}
 body[data-page="contractor"] .pilot-shared-progress {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
 body[data-page="contractor"] .contractor-progress-card {min-height:0;padding:12px 16px;border-radius:10px;box-shadow:none;background:#fff;color:#183b50;border:1px solid #d6e2e8;border-top:4px solid #68869a;}
 body[data-page="contractor"] .contractor-progress-card::after {display:none;}
@@ -115,6 +127,8 @@ body[data-page="contractor"] :is(button,a,input,select,summary):focus-visible {o
   body[data-page="contractor"] .contractor-progress-card {padding:9px 12px;}
   body[data-page="contractor"] .contractor-progress-card strong {font-size:26px;}
   .workspace-tools {gap:8px;}
+  .workspace-tools {flex-wrap:wrap;}
+  .scope-selector {flex-basis:100%;}
   #pilotRefreshReports {font-size:12px;padding:8px;}
   body[data-page="contractor"] .contractor-assignment-form {display:block;}
   #continueToSurvey {display:none;}

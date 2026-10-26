@@ -1,10 +1,12 @@
-import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261026-design4';
+import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261026-map1';
+import { parcelSymbol, labelSymbol, declutterMapLabels } from "./map-design.js?v=20261026-map1";
+import { assignmentType,matchesAssignmentType } from "./assignment-type.js";
 import { parcelBlockLot } from "./parcel-label.js";
 import { ParcelSelection } from "./parcel-selection.js";
 import { currentPeriodLabel, previousPeriodLabel, assignmentPeriodLabel } from "./service-period.js";
 import { addFindMyLocation } from "./map-location.js?v=20261015-visible";
 import { buildPilotSurveyUrl } from "./pilot-survey-url.js";
-import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261026-design4";
+import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261026-map1";
 import {
   ASSIGNMENT_HISTORY_LAYER_URL,
   SURVEY123_PREFILL_FIELDS,
@@ -78,7 +80,7 @@ function renderSelection() {
     : 'Add more parcels or continue to review and report.';
   selectionList.replaceChildren(...items.map(item => {
     const row = document.createElement('li');
-    row.append(document.createTextNode(`${parcelBlockLot(item.parcelNumber)} — ${item.address}`));
+    row.append(document.createTextNode(`${parcelBlockLot(item.parcelNumber)} — ${item.address} · ${assignmentType(item)}`));
     const remove = document.createElement('button');
     remove.type = 'button';
     remove.textContent = 'Remove';
@@ -99,12 +101,13 @@ function renderSelection() {
     const id=String(g.attributes.assignmentObjectId);
     const submitted = pilotStatuses ? pilotStatuses[id]==='fulfilled' : referenceSubmittedIds.has(id);
     const followUp=pilotStatuses?.[id]==='follow-up';
-    g.symbol = {type:'simple-fill', color: selected ? [0,152,211,0.34] : submitted ? [46,125,50,0.76] : followUp ? [247,188,131,0.85] : [0,152,211,0.08], outline:{color:selected ? '#006c9f' : submitted ? '#1c5a29' : followUp ? '#c2410c' : '#007eae',width:selected ? 3 : 1.5}};
+    g.symbol=parcelSymbol(submitted?'fulfilled':followUp?'follow-up':pilotStatuses?'unreported':'unknown',selected,assignmentType(g.attributes.maintenanceLevel)==='Request Only');
   });
   if (selectedParcelGraphic) parcelMapView?.graphics.remove(selectedParcelGraphic);
   if (selectedParcelLabelGraphic) parcelMapView?.graphics.remove(selectedParcelLabelGraphic);
   selectedParcelGraphic = null;
   selectedParcelLabelGraphic = null;
+  applyAssignmentScope();
   syncAvailableParcelLabels();
 }
 
@@ -219,36 +222,14 @@ function polygonCenter(geometry) {
   return [(Math.min(...xs) + Math.max(...xs)) / 2, (Math.min(...ys) + Math.max(...ys)) / 2];
 }
 
-function parcelLabelGraphic(assignment, { selected = false } = {}) {
-  const center = polygonCenter(assignment.geometry);
-  if (!center) return null;
-  return new Graphic({
-    geometry: { type: "point", longitude: center[0], latitude: center[1], spatialReference: { wkid: 4326 } },
-    attributes: { assignmentObjectId: assignment.objectId, parcelLabel: true, selected },
-    symbol: {
-      type: "text",
-      color: selected ? "#00334f" : "#17212b",
-      haloColor: "#ffffff",
-      haloSize: selected ? 1.7 : 1.35,
-      // The selected boundary and confirmation card already communicate state.
-      // Keep a single parcel number on the map rather than stacking a second
-      // "SELECTED" label over the regular zoom label.
-      text: parcelBlockLot(assignment.parcelNumber),
-      font: { family: "Arial", size: selected ? 10 : 9, weight: "bold" },
-      yoffset: selected ? 12 : 4
-    }
-  });
+function parcelLabelGraphic(assignment) {
+  const center=polygonCenter(assignment.geometry);
+  return center ? new Graphic({geometry:{type:'point',longitude:center[0],latitude:center[1],spatialReference:{wkid:4326}},
+    attributes:{assignmentObjectId:assignment.objectId,parcelLabel:true,maintenanceLevel:assignmentType(assignment)},symbol:labelSymbol(parcelBlockLot(assignment.parcelNumber)),visible:false}) : null;
 }
 
 function syncAvailableParcelLabels() {
-  if (!parcelMapView) return;
-  const showLabels = parcelMapView.scale <= PARCEL_LABEL_SCALE;
-  availableParcelGraphics.filter((graphic) => graphic.attributes?.parcelLabel)
-    .forEach((graphic) => {
-      // A selected parcel has its own persistent label. Hide its ordinary
-      // zoom-level label so the two labels can never overlap.
-      graphic.visible = selection.has(graphic.attributes.assignmentObjectId) || showLabels;
-    });
+  declutterMapLabels(parcelMapView,availableParcelGraphics.filter(g=>matchesAssignmentType(g.attributes.maintenanceLevel,document.getElementById("assignmentType").value)),{focusedId:selection.has(selectedAssignment?.objectId)?selectedAssignment.objectId:'',selectedIds:new Set(selection.values().map(item=>String(item.objectId)))});
 }
 
 function setOptions(select, options, placeholder) {
@@ -275,7 +256,8 @@ async function initializeParcelMap() {
   });
   await parcelMapView.when();
   addFindMyLocation(parcelMapView);
-  parcelMapView.watch("scale", syncAvailableParcelLabels);
+  parcelMapView.watch("stationary",syncAvailableParcelLabels);
+  parcelMapView.watch("size",syncAvailableParcelLabels);
   parcelMapView.on("click", async (event) => {
     const hit = await parcelMapView.hitTest(event).catch(() => null);
     const graphic = hit?.results
@@ -308,7 +290,7 @@ function showAvailableParcels() {
     .flatMap((assignment) => {
       const parcel = new Graphic({
         geometry: assignment.geometry,
-        attributes: { assignmentObjectId: assignment.objectId },
+        attributes: { assignmentObjectId: assignment.objectId,maintenanceLevel:assignmentType(assignment) },
         symbol: {
           type: "simple-fill",
           color: [0, 152, 211, 0.08],
@@ -323,12 +305,13 @@ function showAvailableParcels() {
   if (!availableParcelGraphics.length) return;
   selectedParcelLabel.textContent = "Tap an outlined parcel on the map or use the list";
   selectedParcelBadge.hidden = true;
-  selectedParcelMeta.textContent = "Every outline is assigned to the selected organization. Tap a parcel to select it for this service record.";
-  parcelMapView.goTo(availableParcelGraphics, { duration: 450 }).catch(() => {});
+  selectedParcelMeta.textContent = "Solid outlines are Active; dashed outlines are Request Only. Report Request Only service only after the team asks you to.";
+  parcelMapView.goTo(availableParcelGraphics.filter(g=>!g.attributes?.parcelLabel), { padding:40,duration:450 }).catch(() => {});
+  applyAssignmentScope();
   syncAvailableParcelLabels();
 }
 
-function showSelectedParcel(assignment) {
+function showSelectedParcel(assignment, {zoom=true}={}) {
   selectedAssignment = assignment;
   if (!parcelMapView || !assignment?.geometry) return;
   if (selectedParcelGraphic) parcelMapView.graphics.remove(selectedParcelGraphic);
@@ -345,7 +328,7 @@ function showSelectedParcel(assignment) {
   parcelMapView.graphics.add(selectedParcelGraphic);
   if (selectedParcelLabelGraphic?.geometry) parcelMapView.graphics.add(selectedParcelLabelGraphic);
   syncAvailableParcelLabels();
-  parcelMapView.goTo(assignment.geometry.extent?.expand(1.55) || selectedParcelGraphic, { duration: 450 }).catch(() => {});
+  if(zoom) parcelMapView.goTo(assignment.geometry.extent?.expand(1.55) || selectedParcelGraphic, { duration: 450 }).catch(() => {});
   selectedParcelLabel.textContent = `${parcelBlockLot(assignment.parcelNumber)} · ${assignment.address}`;
   selectedParcelBadge.hidden = false;
   selectedParcelBadge.textContent = `Selected parcel · ${parcelBlockLot(assignment.parcelNumber)}`;
@@ -356,12 +339,13 @@ async function selectAssignment(objectId, { fromMap = false } = {}) {
   const assignment = assignments.find((item) => item.objectId === String(objectId));
   if (!assignment) return;
   if (!await confirmReportChange()) {parcelSelect.value=selectedAssignment?.objectId || "";return;}
+  selectedAssignment=assignment;
   parcelSelect.value = assignment.objectId;
   if (fromMap && selection.has(assignment.objectId)) selection.remove(assignment.objectId);
   else selection.add(assignment);
   invalidatePilotForm();
-  status.textContent = `${parcelBlockLot(assignment.parcelNumber)} · ${assignment.address} · ${assignment.period}${fromMap ? " (selected on map)" : ""}`;
-  if (!fromMap) showSelectedParcel(assignment);
+  status.textContent = `${parcelBlockLot(assignment.parcelNumber)} · ${assignment.address} · ${assignment.period} · ${assignmentType(assignment)}${fromMap ? " (selected on map)" : ""}`;
+  showSelectedParcel(assignment,{zoom:!fromMap});
   renderSelection();
   syncContractorUrl();
   emitContractorContext();
@@ -464,18 +448,18 @@ async function loadParcels(organization) {
       geometry: parcelGeometry
     };
     })
-    .filter((assignment) => !/request/i.test(assignment.maintenanceLevel));
+    .filter((assignment) => /active|request/i.test(assignment.maintenanceLevel));
   setOptions(parcelSelect, assignments.map((assignment) => ({
     value: assignment.objectId,
-    label: `${parcelBlockLot(assignment.parcelNumber)} - ${assignment.address}`
-  })), assignments.length ? "Choose an assigned parcel" : "No active parcels assigned");
+    label: `${parcelBlockLot(assignment.parcelNumber)} - ${assignment.address} · ${assignmentType(assignment)}`
+  })), assignments.length ? "Choose an assigned parcel" : "No parcels assigned");
   parcelSelect.disabled = assignments.length === 0;
   confirmedOrganization=organizationSelect.value;
   showAvailableParcels();
   document.dispatchEvent(new CustomEvent('landcare:pilot-assignments', {detail:{period:monthSelect.value,organization:cleanOrganization(organization),assignments}}));
   status.textContent = assignments.length
-    ? `${assignments.length} active parcel${assignments.length === 1 ? "" : "s"} assigned for ${monthSelect.value}. Choose from the map or the list.`
-    : "No active parcels were found for this organization in the selected assignment month.";
+    ? `${assignments.filter(a=>assignmentType(a)==='Active').length} Active · ${assignments.filter(a=>assignmentType(a)==='Request Only').length} Request Only parcels. Choose from the map or the list.`
+    : "No parcels were found for this organization in the selected assignment month.";
   syncContractorUrl();
   emitContractorContext();
 }
@@ -565,14 +549,22 @@ document.addEventListener('landcare:report-more',()=>{
   resetSelection();parcelSelect.value='';syncContractorUrl();
   parcelMapNode.scrollIntoView({behavior:'smooth',block:'center'});
 });
-document.getElementById('parcelSearch').addEventListener('input',event=>{
-  const query=event.target.value.toLowerCase().replace(/[^a-z0-9]/g,'');
+function applyAssignmentScope() {
+  const scope=document.getElementById('assignmentType').value;
+  const query=document.getElementById('parcelSearch').value.toLowerCase().replace(/[^a-z0-9]/g,'');
   for(const option of parcelSelect.options) {
     const item=assignments.find(a=>a.objectId===option.value);
-    const matches=!item || !query || `${parcelBlockLot(item.parcelNumber)} ${item.address} ${item.parcelNumber}`.toLowerCase().replace(/[^a-z0-9]/g,'').includes(query);
-    option.hidden=!matches; option.disabled=!matches || !option.value;
+    const matches=!item || (matchesAssignmentType(item,scope) && (!query || `${parcelBlockLot(item.parcelNumber)} ${item.address} ${item.parcelNumber}`.toLowerCase().replace(/[^a-z0-9]/g,'').includes(query)));
+    option.hidden=!matches;option.disabled=!matches||!option.value;
   }
-  document.getElementById('parcelSearchResult').textContent=query ? `${[...parcelSelect.options].filter(o=>o.value && !o.hidden).length} matching parcels in the list. Map still shows all assigned parcels.` : '';
+  for(const graphic of availableParcelGraphics) graphic.visible=matchesAssignmentType(graphic.attributes.maintenanceLevel,scope);
+  document.getElementById('parcelSearchResult').textContent=query ? `${[...parcelSelect.options].filter(o=>o.value&&!o.hidden).length} matching parcels in the list. Map shows the selected assignment type.` : '';
+}
+document.getElementById('parcelSearch').addEventListener('input',()=>{applyAssignmentScope();syncAvailableParcelLabels();});
+document.getElementById('assignmentType').addEventListener('change',()=>{
+  applyAssignmentScope();syncAvailableParcelLabels();
+  const graphics=availableParcelGraphics.filter(g=>!g.attributes?.parcelLabel&&g.visible);
+  if(graphics.length) parcelMapView?.goTo(graphics,{duration:400}).catch(()=>{});
 });
 loadRecentMonths()
   .then(async () => {
@@ -603,6 +595,7 @@ loadRecentMonths()
 initializeParcelMap().catch(() => {
   selectedParcelMeta.textContent = "The parcel map could not load. The assignment lookup remains available.";
 });
+
 
 
 

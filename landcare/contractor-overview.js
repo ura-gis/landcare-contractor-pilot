@@ -1,7 +1,9 @@
+import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261026-map1";
+import { assignmentType,matchesAssignmentType } from "./assignment-type.js";
 import Map from "https://js.arcgis.com/4.30/@arcgis/core/Map.js";
 import { addFindMyLocation } from "./map-location.js?v=20261015-visible";
 import { fetchPilotReportPhotos } from './pilot-results-feed.js';
-import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261026-design4';
+import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261026-map1';
 import MapView from "https://js.arcgis.com/4.30/@arcgis/core/views/MapView.js";
 import Graphic from "https://js.arcgis.com/4.30/@arcgis/core/Graphic.js";
 import GraphicsLayer from "https://js.arcgis.com/4.30/@arcgis/core/layers/GraphicsLayer.js";
@@ -64,7 +66,9 @@ let detailVersion = 0;
 
 function updatePilotMetrics() {
   const result=pilotDetail?.result;
-  assignedNode.textContent=formatNumber(state.features.length);
+  assignedNode.textContent=formatNumber(result ? result.assigned : state.features.filter(f=>assignmentType(f.properties)==='Active').length);
+  const requested=result?.requestOnly;
+  document.getElementById('requestOnlyCounts').textContent=requested ? `${requested.assigned} parcels · ${requested.reported} reported · ${requested.fulfilled} reported fulfilled · ${requested.followUp} needs follow-up` : 'Reports unavailable.';
   submittedNode.textContent=result ? formatNumber(result.fulfilled) : '--';
   openNode.textContent=result ? formatNumber(result.followUp) : '--';
   document.getElementById('contractorUnreportedKpi').textContent=result ? formatNumber(result.unreported) : '—';
@@ -112,11 +116,11 @@ function statusFor(feature) {
 
 function visibleFeatures() {
   const query=(document.getElementById("parcelSearch")?.value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-  const matches=state.features.filter(feature=>!query || `${featureBlockLot(feature)} ${feature.properties.address || ""} ${feature.properties.parcel_number || feature.properties.parcel_key || ""}`.toLowerCase().replace(/[^a-z0-9]/g, "").includes(query));
+  const matches=state.features.filter(feature=>matchesAssignmentType(feature.properties,document.getElementById('assignmentType').value)&&(!query || `${featureBlockLot(feature)} ${feature.properties.address || ""} ${feature.properties.parcel_number || feature.properties.parcel_key || ""}`.toLowerCase().replace(/[^a-z0-9]/g, "").includes(query)));
   return state.statusFilter === "all"
     ? matches
     : matches.filter((feature) => state.statusFilter==='open'
-      ? ['follow-up','unreported'].includes(statusFor(feature)) : statusFor(feature) === state.statusFilter);
+      ? assignmentType(feature.properties)==='Active' && ['follow-up','unreported'].includes(statusFor(feature)) : statusFor(feature) === state.statusFilter);
 }
 
 function escapeHtml(value) {
@@ -205,6 +209,7 @@ function parcelDetailMarkup(props, {loadingEvidence=false}={}) {
   return `<div class="contractor-parcel-detail__summary">
     <strong>${escapeHtml(blockLot(props.block_lot || props.parcel_number || props.parcel_key))}</strong>
     <span>${escapeHtml(props.address || 'Address unavailable')}</span>
+    <span><b>Type:</b> ${escapeHtml(assignmentType(props))}${assignmentType(props)==='Request Only' ? ' · report service only when asked' : ''}</span>
     <span><b>Status:</b> ${escapeHtml(pilotStatusLabel(props.pilot_status))}</span>
     <span><b>Service period:</b> ${escapeHtml(props.period_month || state.month)}</span>
     <span>${records.length} report(s) for this period. Contractor answers are not staff approval.</span>
@@ -237,14 +242,7 @@ function featureGeometry(feature) {
 }
 
 function symbolFor(feature) {
-  const selected = String(feature.properties.objectid) === state.selectedObjectId;
-  const returned = feature.properties.pilot_status==='fulfilled';
-  const followUp = feature.properties.pilot_status==='follow-up';
-  return {
-    type: "simple-fill",
-    color: returned ? [46, 125, 50, 0.76] : followUp ? [247,188,131,0.85] : [255, 255, 255, 0.66],
-    outline: { color: selected ? "#007eae" : returned ? "#1c5a29" : "#7b8790", width: selected ? 3 : 1.15 }
-  };
+  return parcelSymbol(feature.properties.pilot_status,String(feature.properties.objectid)===state.selectedObjectId,assignmentType(feature.properties)==='Request Only');
 }
 
 function labelGraphic(feature) {
@@ -265,17 +263,9 @@ function labelGraphic(feature) {
   const graphic = new Graphic({
     geometry: center,
     attributes: { label: true, assignmentObjectId: String(feature.properties.objectid) },
-    symbol: {
-      type: "text",
-      text: featureBlockLot(feature),
-      color: "#102433",
-      haloColor: "#ffffff",
-      haloSize: selected ? 2 : 1.3,
-      font: { family: "Arial", size: selected ? 10 : 9, weight: "bold" },
-      yoffset: selected ? 11 : 4
-    }
+    symbol:labelSymbol(featureBlockLot(feature),selected)
   });
-  graphic.visible = selected || state.view?.scale <= labelScale;
+  graphic.visible=false;
   return graphic;
 }
 
@@ -295,6 +285,7 @@ function renderMap() {
     if (label) graphics.push(label);
   }
   state.layer.addMany(graphics);
+  updateLabelVisibility();
 }
 
 function renderList() {
@@ -320,12 +311,13 @@ function renderList() {
       return `<tr class="${selected ? "is-selected" : ""}">
         <td><strong>${escapeHtml(featureBlockLot(feature))}</strong></td>
         <td>${escapeHtml(props.address || "Address unavailable")}</td>
+        <td><span class="assignment-type-badge">${escapeHtml(assignmentType(props))}</span></td>
         <td>${escapeHtml(props.council_district || "—")}</td>
         <td><span class="contractor-status-pill ${submitted ? "submitted" : "open"}">${escapeHtml(pilotStatusLabel(statusFor(feature)))}</span>${props.submitted_at ? `<small>${escapeHtml(dateLabel(props.submitted_at))}</small>` : ""}</td>
         <td><button type="button" class="contractor-list-select" data-contractor-list-id="${escapeHtml(props.objectid)}">View reports / report visit</button></td>
       </tr>`;
     }).join("")
-    : `<tr><td colspan="5" class="contractor-list-empty">No ${state.statusFilter === "all" ? "assigned" : state.statusFilter} parcels match this view.</td></tr>`;
+    : `<tr><td colspan="6" class="contractor-list-empty">No ${state.statusFilter === "all" ? "assigned" : state.statusFilter} parcels match this view.</td></tr>`;
 }
 
 function renderOverview() {
@@ -339,33 +331,7 @@ function renderOverview() {
 }
 
 function updateLabelVisibility() {
-  state.layer?.graphics.filter((graphic) => graphic.attributes?.label).forEach((graphic) => {
-    graphic.visible = graphic.attributes.assignmentObjectId === state.selectedObjectId || state.view.scale <= labelScale;
-  });
-}
-
-async function selectFeature(feature, { openSubmit = false, keepView = false } = {}) {
-  if (!feature) return;
-  const requestVersion=++detailVersion;
-  state.selectedObjectId = String(feature.properties.objectid);
-  renderOverview();
-  const props = feature.properties;
-  detailNode.innerHTML = parcelDetailMarkup(props, { loadingEvidence: Boolean(props.pilot_reports?.length) });
-  const button = detailNode.querySelector(".contractor-submit-parcel");
-  if (button) button.addEventListener("click", () => selectForSubmission(feature));
-  if (!keepView && state.overviewView === "map") {
-    const center = featureCenter(feature);
-    if (center) state.view?.goTo({ center, zoom: 19 }, { duration: 350 }).catch(() => {});
-  }
-  if (props.pilot_reports?.length) {
-    const enriched = await enrichWithSurveyEvidence(feature);
-    if (requestVersion===detailVersion && state.selectedObjectId === String(feature.properties.objectid)) {
-      detailNode.innerHTML = parcelDetailMarkup(enriched.properties);
-      bindPhotoFallbacks();
-      detailNode.querySelector('.contractor-submit-parcel')?.addEventListener('click',()=>selectForSubmission(feature));
-    }
-  }
-  if (openSubmit) selectForSubmission(feature);
+  declutterMapLabels(state.view,state.layer?.graphics||[],{focusedId:state.selectedObjectId,selectedIds:new Set([state.selectedObjectId])});
 }
 
 function selectForSubmission(feature) {
@@ -546,7 +512,7 @@ async function refreshOverview() {
   detailNode.textContent='Loading assigned parcels and pilot reports…';
   try {
     const data=await fetchAssignmentGeojsonForPeriod(month);
-    let features=data.features.filter(feature=>cleanOrganization(feature.properties.organization)===organization && feature.properties.maintenance_level==='Active');
+    let features=data.features.filter(feature=>cleanOrganization(feature.properties.organization)===organization && ['Active','Request Only'].includes(feature.properties.maintenance_level));
     features=await enrichWithParcelReference(features).catch(()=>features);
     if(version!==overviewVersion || state.month!==month || state.organization!==organization) return;
     state.features=pilotOverviewFeatures(features,pilotDetail);
@@ -578,7 +544,8 @@ async function initializeMap() {
   addFindMyLocation(state.view);
   state.view.ui.add(new Zoom({ view: state.view }), "bottom-right");
   state.view.ui.add(new BasemapToggle({ view: state.view, nextBasemap: "hybrid" }), "bottom-right");
-  state.view.watch("scale", updateLabelVisibility);
+  state.view.watch("stationary",updateLabelVisibility);
+  state.view.watch("size",updateLabelVisibility);
   state.view.on("click", async (event) => {
     const hit = await state.view.hitTest(event).catch(() => null);
     const graphic = hit?.results.map((result) => result.graphic).find((item) => item?.attributes?.assignmentObjectId && !item.attributes?.label);
@@ -645,8 +612,10 @@ window.addEventListener("popstate", () => {
 
 setTab(new URLSearchParams(window.location.search).get("tab") || "overview");
 document.getElementById("parcelSearch").addEventListener("input",renderOverview);
+document.getElementById("assignmentType").addEventListener("change",renderOverview);
 setOverviewView("map");
 initializeMap().catch(() => { detailNode.textContent = "The progress map could not load. Use the submission tab to select an assigned parcel."; });
+
 
 
 
