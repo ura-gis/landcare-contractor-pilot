@@ -1,4 +1,4 @@
-import { loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js";
+import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js";
 import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261026-filters1';
 import { parcelSymbol, labelSymbol, declutterMapLabels } from "./map-design.js?v=20261026-filters1";
 import {readParcelFilters,matchesParcelFilters,STATUS_LABELS} from "./parcel-filters.js";
@@ -245,6 +245,7 @@ async function fetchJson(url, params) {
 }
 
 async function initializeParcelMap() {
+  await waitForWorkspaceTab("submit");
   const modules=await loadMapModules();
   [Map,MapView,Graphic]=modules.slice(0,3).map(module=>module.default);
   addFindMyLocation=modules[6].addFindMyLocation;

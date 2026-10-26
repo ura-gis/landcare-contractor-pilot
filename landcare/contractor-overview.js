@@ -1,4 +1,4 @@
-import { loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js";
+import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js";
 import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261026-filters1";
 import {readParcelFilters,matchesParcelFilters,compareParcels,STATUS_LABELS} from "./parcel-filters.js";
 import { assignmentType,matchesAssignmentType } from "./assignment-type.js";
@@ -530,6 +530,7 @@ async function refreshOverview() {
   }
 }
 async function initializeMap() {
+  await waitForWorkspaceTab("overview");
   const modules=await loadMapModules();
   [Map,MapView,Graphic,GraphicsLayer,BasemapToggle,Zoom]=modules.slice(0,6).map(module=>module.default);
   addFindMyLocation=modules[6].addFindMyLocation;

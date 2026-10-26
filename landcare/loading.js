@@ -23,3 +23,11 @@ export function loadMapModules() {
   ]),'The map library').catch(error=>{mapModules=null;throw error;});
   return mapModules;
 }
+
+export function waitForWorkspaceTab(tab) {
+  if(document.body.dataset.activeTab===tab) return Promise.resolve();
+  return new Promise(resolve=>{
+    const onTab=()=>{if(document.body.dataset.activeTab===tab) {document.removeEventListener('landcare:tab-changed',onTab);resolve();}};
+    document.addEventListener('landcare:tab-changed',onTab);
+  });
+}
