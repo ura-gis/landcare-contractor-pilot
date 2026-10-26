@@ -16,13 +16,14 @@ body[data-page="contractor"] .contractor-context {margin:0;padding:16px 20px;gap
 .period-notice details p {max-width:850px;padding-top:8px;color:#4a6474;}
 summary {cursor:pointer;min-height:32px;line-height:1.6;font-weight:650;}
 .period-deadline {font-weight:650;}
+.period-range {font-weight:650;}
 .late-period-notice {border-left:4px solid #ac5416;background:#fff3e7;padding:10px 12px;color:#7d3b0d;font-weight:650;}
 .progress-summary {margin:0;}
 body[data-page="contractor"] .pilot-shared-progress {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
 body[data-page="contractor"] .contractor-progress-card {min-height:0;padding:12px 16px;border-radius:10px;box-shadow:none;background:#fff;color:#183b50;border:1px solid #d6e2e8;border-top:4px solid #68869a;}
 body[data-page="contractor"] .contractor-progress-card::after {display:none;}
 body[data-page="contractor"] .contractor-progress-card span {color:inherit;font-size:13px;}
-body[data-page="contractor"] .contractor-progress-card strong {font-size:30px;line-height:1.15;margin-top:5px;}
+body[data-page="contractor"] .contractor-progress-card strong {font-size:30px;line-height:1.15;margin-top:5px;color:inherit;}
 body[data-page="contractor"] .contractor-progress-card.submitted {background:#edf7ef;border-top-color:#2e7d32;}
 body[data-page="contractor"] .contractor-progress-card.follow-up {background:#fff5ea;border-top-color:#b65a19;}
 body[data-page="contractor"] .contractor-progress-card.open {background:#fff;border-top-color:#97a6b0;}
@@ -93,6 +94,13 @@ body[data-page="contractor"] .survey-embed iframe {min-height:0;border:0;width:1
 .diagnostic-counts {display:flex;flex-wrap:wrap;gap:14px;}
 .diagnostic-count {display:flex;gap:6px;}
 .report-history {margin-top:16px;}
+#discardReportDialog {max-width:min(460px,calc(100vw - 32px));padding:24px;border:1px solid #b9ceda;border-radius:14px;color:#183b50;box-shadow:0 12px 50px #183b5033;}
+#discardReportDialog::backdrop {background:#183b5077;}
+#discardReportDialog h2 {font-size:21px;margin:0 0 12px;}
+#discardReportDialog p {line-height:1.5;}
+.discard-actions {display:flex;gap:10px;justify-content:end;margin-top:20px;}
+.discard-actions button {min-height:44px;padding:10px 14px;border:1px solid #aac1cd;border-radius:8px;background:#fff;color:#183b50;}
+.discard-actions button[value="keep"] {background:#006c98;color:#fff;}
 body[data-page="contractor"] .survey-photo-evidence img {max-width:100%;max-height:280px;object-fit:contain;}
 body[data-page="contractor"] :is(button,a,input,select,summary):focus-visible {outline:3px solid #ba5e00;outline-offset:3px;}
 @media(max-width:700px) {

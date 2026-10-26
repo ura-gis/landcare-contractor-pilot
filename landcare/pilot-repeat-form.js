@@ -2,7 +2,7 @@ import { buildRepeatQuestionValues, verifyRepeatValues } from './pilot-repeat-da
 import { initializeRepeat } from './pilot-repeat-initialize.js';
 import { parcelBlockLot } from './parcel-label.js';
 import { assignmentPeriodLabel } from './service-period.js';
-import { setReportDirty, setReportPending, clearReportGuard } from './report-guard.js';
+import { setReportDirty, setReportPending, clearReportGuard } from './report-guard.js?v=20261026-design3';
 
 let sdkPromise;
 function loadSurveySdk() {
@@ -118,3 +118,4 @@ export async function openPilotRepeatForm(container,assignments,isCurrent) {
     finally {if(!sent&&isCurrent()&&!completed) {pending=false;setReportPending(false);submit.disabled=false;submit.textContent=submitLabel;}}
   });
 }
+

@@ -1,10 +1,10 @@
-import { confirmReportChange, clearReportGuard } from './report-guard.js';
+import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261026-design3';
 import { parcelBlockLot } from "./parcel-label.js";
 import { ParcelSelection } from "./parcel-selection.js";
 import { currentPeriodLabel, previousPeriodLabel, assignmentPeriodLabel } from "./service-period.js";
 import { addFindMyLocation } from "./map-location.js?v=20261015-visible";
 import { buildPilotSurveyUrl } from "./pilot-survey-url.js";
-import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261026-design2";
+import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261026-design3";
 import {
   ASSIGNMENT_HISTORY_LAYER_URL,
   SURVEY123_PREFILL_FIELDS,
@@ -83,8 +83,8 @@ function renderSelection() {
     remove.type = 'button';
     remove.textContent = 'Remove';
     remove.setAttribute('aria-label', `Remove ${parcelBlockLot(item.parcelNumber)}`);
-    remove.addEventListener('click', () => {
-      if (!confirmReportChange()) return;
+    remove.addEventListener('click', async () => {
+      if (!await confirmReportChange()) return;
       selection.remove(item.objectId);
       if (parcelSelect.value === item.objectId) parcelSelect.value = '';
       invalidatePilotForm();
@@ -117,8 +117,8 @@ function resetSelection() {
   invalidatePilotForm();
   renderSelection();
 }
-clearSelectionButton.addEventListener('click', () => {
-  if (!confirmReportChange()) return;
+clearSelectionButton.addEventListener('click', async () => {
+  if (!await confirmReportChange()) return;
   resetSelection();
   parcelSelect.value = '';
   syncContractorUrl();
@@ -352,10 +352,10 @@ function showSelectedParcel(assignment) {
   selectedParcelMeta.textContent = `Bright blue boundary = this service record. ${assignment.address} · ${cleanOrganization(assignment.organization)} · ${assignmentPeriodLabel(assignment.period)}`;
 }
 
-function selectAssignment(objectId, { fromMap = false } = {}) {
+async function selectAssignment(objectId, { fromMap = false } = {}) {
   const assignment = assignments.find((item) => item.objectId === String(objectId));
   if (!assignment) return;
-  if (!confirmReportChange()) {parcelSelect.value=selectedAssignment?.objectId || "";return;}
+  if (!await confirmReportChange()) {parcelSelect.value=selectedAssignment?.objectId || "";return;}
   parcelSelect.value = assignment.objectId;
   if (fromMap && selection.has(assignment.objectId)) selection.remove(assignment.objectId);
   else selection.add(assignment);
@@ -401,13 +401,14 @@ function updatePeriodNotice() {
   const previous=monthSelect.value!==currentPeriodLabel();
   const range=assignmentPeriodLabel(monthSelect.value);
   notice.innerHTML='';
+  const fullRange=document.createElement('p');fullRange.textContent=range.split(': ')[1];fullRange.className='period-range';
   const deadline=document.createElement('p');
   deadline.className=previous ? 'late-period-notice' : 'period-deadline';
   deadline.textContent=previous ? `Late report: this will count toward ${range}. Your actual submission time is recorded.` : `Submit the same day, by ${range.split(' – ')[1]} at 11:59 p.m. Eastern.`;
   const rules=document.createElement('details');
   const summary=document.createElement('summary');summary.textContent='How service periods work';
   const text=document.createElement('p');text.textContent='Periods run from the 15th through the 14th, Eastern time. Submit immediately after work, preferably the same day. If you miss the deadline, choose Previous period. Your report counts toward that selected period; your actual submission timestamp is preserved. Periods without published assignments cannot be selected.';
-  rules.append(summary,text);notice.append(deadline,rules);
+  rules.append(summary,text);notice.append(fullRange,deadline,rules);
 }
 
 async function loadOrganizations() {
@@ -483,7 +484,7 @@ const buildSurveyUrl = buildPilotSurveyUrl;
 
 let confirmedMonth="",confirmedOrganization="";
 monthSelect.addEventListener("change", async () => {
-  if (!confirmReportChange()) {monthSelect.value=confirmedMonth;return;}
+  if (!await confirmReportChange()) {monthSelect.value=confirmedMonth;return;}
   confirmedMonth=monthSelect.value;
   updatePeriodNotice();
   pilotStatuses=null;
@@ -506,7 +507,7 @@ monthSelect.addEventListener("change", async () => {
 });
 
 organizationSelect.addEventListener("change", async () => {
-  if (!confirmReportChange()) {organizationSelect.value=confirmedOrganization;return;}
+  if (!await confirmReportChange()) {organizationSelect.value=confirmedOrganization;return;}
   confirmedOrganization=organizationSelect.value;
   pilotStatuses=null;
   referenceSubmittedIds.clear();
@@ -541,7 +542,7 @@ parcelSelect.addEventListener("change", () => {
 
 lookupForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  if (!selection.size || !confirmReportChange()) return;
+  if (!selection.size || !await confirmReportChange()) return;
   invalidatePilotForm();
   document.body.classList.add("report-open");
   const version = formVersion;
@@ -602,6 +603,9 @@ loadRecentMonths()
 initializeParcelMap().catch(() => {
   selectedParcelMeta.textContent = "The parcel map could not load. The assignment lookup remains available.";
 });
+
+
+
 
 
 

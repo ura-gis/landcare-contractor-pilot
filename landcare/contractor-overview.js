@@ -1,7 +1,7 @@
 import Map from "https://js.arcgis.com/4.30/@arcgis/core/Map.js";
 import { addFindMyLocation } from "./map-location.js?v=20261015-visible";
 import { fetchPilotReportPhotos } from './pilot-results-feed.js';
-import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js';
+import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261026-design3';
 import MapView from "https://js.arcgis.com/4.30/@arcgis/core/views/MapView.js";
 import Graphic from "https://js.arcgis.com/4.30/@arcgis/core/Graphic.js";
 import GraphicsLayer from "https://js.arcgis.com/4.30/@arcgis/core/layers/GraphicsLayer.js";
@@ -201,17 +201,18 @@ function parcelDetailMarkup(props, {loadingEvidence=false}={}) {
     ${report.comments ? `<p><b>Comments:</b> ${escapeHtml(report.comments)}</p>` : ''}</div>
     ${(report.photos || []).map(photo=>{const url=safeImageUrl(photo.image_url);return url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer"><img data-evidence-photo src="${escapeHtml(url)}" alt="Pilot report photo" loading="lazy" referrerpolicy="no-referrer" /></a>` : '';}).join('')}
     ${report.photoError ? '<p>Photo could not be read. The saved report remains available.</p>' : ''}
-  </section>`).join('');
+  </section>`);
   return `<div class="contractor-parcel-detail__summary">
     <strong>${escapeHtml(blockLot(props.block_lot || props.parcel_number || props.parcel_key))}</strong>
     <span>${escapeHtml(props.address || 'Address unavailable')}</span>
     <span><b>Status:</b> ${escapeHtml(pilotStatusLabel(props.pilot_status))}</span>
-    <span><b>Assignment period:</b> ${escapeHtml(props.period_month || state.month)}</span>
+    <span><b>Service period:</b> ${escapeHtml(props.period_month || state.month)}</span>
     <span>${records.length} report(s) for this period. Contractor answers are not staff approval.</span>
     </div>
     <button type="button" class="contractor-submit-parcel">${records.length ? 'Report another visit' : 'Report service for this parcel'}</button>
     ${loadingEvidence ? '<p>Loading pilot photos…</p>' : ''}
-    ${(records.length > 1 ? `<details class="report-history"><summary>View report history (${records.length})</summary>${reports}</details>` : reports) || (props.pilot_status==='unknown' ? '<p>Pilot reports could not be loaded.</p>' : '<p>No pilot report for this parcel and period.</p>')}`;
+    ${reports[0] || (props.pilot_status==='unknown' ? '<p>Pilot reports could not be loaded.</p>' : '<p>No pilot report for this parcel and period.</p>')}
+    ${records.length > 1 ? `<details class="report-history"><summary>View older reports (${records.length-1})</summary>${reports.slice(1).join('')}</details>` : ''}`;
 }
 function setEmptyState(message) {
   state.features=[];
@@ -646,6 +647,7 @@ setTab(new URLSearchParams(window.location.search).get("tab") || "overview");
 document.getElementById("parcelSearch").addEventListener("input",renderOverview);
 setOverviewView("map");
 initializeMap().catch(() => { detailNode.textContent = "The progress map could not load. Use the submission tab to select an assigned parcel."; });
+
 
 
 

@@ -27,7 +27,7 @@ function render() {
     message.textContent=`Last updated ${snapshot.loadedAt.toLocaleString()}. ${result.outstanding} parcels remain without a Yes report. Data checks: ${JSON.stringify(result.qa)}.`;
     document.getElementById('pilotFeedStatus').textContent=`Updated ${snapshot.loadedAt.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})} · contractor reports, not staff approval.`;
     signal(result.statuses,result);
-  } catch(error) {message.textContent=`Pilot counts unavailable: ${error.message}`;signal(null);}
+  } catch(error) {message.textContent=`Pilot counts unavailable: ${error.message}`;document.getElementById('pilotFeedStatus').textContent='Progress unavailable. Refresh progress to retry.';signal(null);}
 }
 async function reload() {
   refresh.disabled=true;
