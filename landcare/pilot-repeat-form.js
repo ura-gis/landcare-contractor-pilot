@@ -38,8 +38,15 @@ export async function openPilotRepeatForm(container,assignments,isCurrent) {
   const more=document.createElement('button');more.type='button';more.className='report-more';more.textContent='Report more parcels';more.hidden=true;
   more.addEventListener('click',()=>document.dispatchEvent(new CustomEvent('landcare:report-more')));
   const check=document.createElement('button');check.type='button';check.className='report-more';check.hidden=true;check.textContent='Refresh progress to check for this report';
-  check.addEventListener('click',()=>document.dispatchEvent(new CustomEvent('landcare:pilot-submitted')));
-  container.replaceChildren(summary,message,host,submit,more,check);
+  const retry=document.createElement('button');retry.type='button';retry.className='report-more';retry.hidden=true;retry.textContent='Review and retry';
+  check.addEventListener('click',()=>{document.dispatchEvent(new CustomEvent('landcare:pilot-submitted'));retry.hidden=false;});
+  retry.addEventListener('click',()=>{
+    if(!isCurrent()||completed) return;
+    if(!window.confirm('Check the parcel report history first. If this report was saved, retrying will create another report. Have you checked that it was not saved?')) return;
+    pending=false;setReportPending(false);submit.disabled=false;submit.textContent=submitLabel;retry.hidden=true;check.hidden=true;
+    message.textContent='Your answers are preserved. Check the form, then submit when ready.';
+  });
+  container.replaceChildren(summary,message,host,submit,more,check,retry);
   let form,completed=false,ready=false,pending=false,initialization,waiting;
   const resize=data=>{
     if(!isCurrent()||completed) return;
@@ -59,8 +66,9 @@ export async function openPilotRepeatForm(container,assignments,isCurrent) {
     hideElements:['navbar','header','description','footer','submit'],onFormResized:resize,
     onQuestionValueChanged:data=>{
       if(!ready||!isCurrent()||completed) return;
-      const field=String(data.field||'').split('/').pop();
-      if(['did_you_fulfill_your_obligation','comments','photo_of_completed_work'].includes(field)) setReportDirty();
+      // SDK versions may report question IDs rather than stored field names.
+      // Any value change after initialization makes this an unfinished report.
+      setReportDirty();
     },
     onFormLoaded:async data=>{
       try {
@@ -83,7 +91,7 @@ export async function openPilotRepeatForm(container,assignments,isCurrent) {
     onFormSubmitted:()=>{
       if(!isCurrent()) return;
       completed=true;pending=false;clearTimeout(waiting);clearReportGuard();
-      submit.disabled=true;submit.hidden=true;host.hidden=true;more.hidden=false;check.hidden=true;
+      submit.disabled=true;submit.hidden=true;host.hidden=true;more.hidden=false;check.hidden=true;retry.hidden=true;
       message.classList.add('is-success');message.setAttribute('tabindex','-1');
       message.textContent=`Report received for ${assignments.length} parcel${assignments.length===1?'':'s'} · ${assignmentPeriodLabel(assignments[0].period)}. Progress is refreshing.`;
       message.focus();document.dispatchEvent(new CustomEvent('landcare:pilot-submitted'));

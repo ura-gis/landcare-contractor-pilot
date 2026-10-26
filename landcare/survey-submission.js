@@ -1,10 +1,10 @@
-import { confirmReportChange, clearReportGuard, reportIsPending } from './report-guard.js';
+import { confirmReportChange, clearReportGuard } from './report-guard.js';
 import { parcelBlockLot } from "./parcel-label.js";
 import { ParcelSelection } from "./parcel-selection.js";
 import { currentPeriodLabel, previousPeriodLabel, assignmentPeriodLabel } from "./service-period.js";
 import { addFindMyLocation } from "./map-location.js?v=20261015-visible";
 import { buildPilotSurveyUrl } from "./pilot-survey-url.js";
-import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261026-design1";
+import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261026-design2";
 import {
   ASSIGNMENT_HISTORY_LAYER_URL,
   SURVEY123_PREFILL_FIELDS,
@@ -111,6 +111,9 @@ function renderSelection() {
 function resetSelection() {
   selection.clear();
   selectedAssignment = null;
+  selectedParcelLabel.textContent='Tap parcels on the map or add them from the list';
+  selectedParcelBadge.hidden=true;
+  selectedParcelMeta.textContent='Blue outlines mark the parcels selected for this report.';
   invalidatePilotForm();
   renderSelection();
 }
@@ -384,6 +387,7 @@ async function loadRecentMonths() {
   const available = months.filter((month) => published.has(month));
   if (!available.length) throw new Error('Current and previous period assignments are not available yet.');
   monthSelect.value = available.includes(requestedMonth) ? requestedMonth : available[0];
+  confirmedMonth=monthSelect.value;
   updatePeriodNotice();
   monthSelect.disabled = false;
 }
@@ -420,6 +424,7 @@ async function loadOrganizations() {
     .sort((left, right) => left.label.localeCompare(right.label));
   if (!organizations.length) throw new Error("No organization assignments were returned for this month");
   setOptions(organizationSelect, organizations, "Choose your organization");
+  confirmedOrganization='';
   organizationSelect.disabled = false;
   status.textContent = `${organizations.length} organizations in the ${monthSelect.value} assignment bundle.`;
   emitContractorContext();
@@ -464,6 +469,7 @@ async function loadParcels(organization) {
     label: `${parcelBlockLot(assignment.parcelNumber)} - ${assignment.address}`
   })), assignments.length ? "Choose an assigned parcel" : "No active parcels assigned");
   parcelSelect.disabled = assignments.length === 0;
+  confirmedOrganization=organizationSelect.value;
   showAvailableParcels();
   document.dispatchEvent(new CustomEvent('landcare:pilot-assignments', {detail:{period:monthSelect.value,organization:cleanOrganization(organization),assignments}}));
   status.textContent = assignments.length
@@ -476,11 +482,9 @@ async function loadParcels(organization) {
 const buildSurveyUrl = buildPilotSurveyUrl;
 
 let confirmedMonth="",confirmedOrganization="";
-for (const field of [monthSelect,organizationSelect]) {
-  field.addEventListener("focus",()=>{confirmedMonth=monthSelect.value;confirmedOrganization=organizationSelect.value;});
-}
 monthSelect.addEventListener("change", async () => {
   if (!confirmReportChange()) {monthSelect.value=confirmedMonth;return;}
+  confirmedMonth=monthSelect.value;
   updatePeriodNotice();
   pilotStatuses=null;
   referenceSubmittedIds.clear();
@@ -503,6 +507,7 @@ monthSelect.addEventListener("change", async () => {
 
 organizationSelect.addEventListener("change", async () => {
   if (!confirmReportChange()) {organizationSelect.value=confirmedOrganization;return;}
+  confirmedOrganization=organizationSelect.value;
   pilotStatuses=null;
   referenceSubmittedIds.clear();
   parcelLoadVersion++;
@@ -597,6 +602,7 @@ loadRecentMonths()
 initializeParcelMap().catch(() => {
   selectedParcelMeta.textContent = "The parcel map could not load. The assignment lookup remains available.";
 });
+
 
 
 
