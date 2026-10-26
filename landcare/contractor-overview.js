@@ -59,7 +59,6 @@ const state = {
   survey123Evidence: [],
   councilDistricts: null
 };
-const labelScale = 5000;
 let pilotDetail = null;
 let overviewVersion = 0;
 let detailVersion = 0;
@@ -612,7 +611,7 @@ window.addEventListener("popstate", () => {
 
 setTab(new URLSearchParams(window.location.search).get("tab") || "overview");
 document.getElementById("parcelSearch").addEventListener("input",renderOverview);
-document.getElementById("assignmentType").addEventListener("change",renderOverview);
+document.getElementById("assignmentType").addEventListener("change",()=>{state.statusFilter='all';renderOverview();});
 setOverviewView("map");
 initializeMap().catch(() => { detailNode.textContent = "The progress map could not load. Use the submission tab to select an assigned parcel."; });
 

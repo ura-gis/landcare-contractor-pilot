@@ -134,7 +134,6 @@ let selectedParcelGraphic;
 let selectedParcelLabelGraphic;
 let availableParcelGraphics = [];
 let selectedAssignment;
-const PARCEL_LABEL_SCALE = 5000;
 const isContractorPortal = document.body?.dataset?.page === "contractor";
 const portalParams = new URLSearchParams(window.location.search);
 const requestedMonth = portalParams.get("month") || "";
