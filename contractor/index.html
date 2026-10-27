@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>LandCare Contractor Portal — Pilot</title>
     <link rel="stylesheet" href="https://js.arcgis.com/4.30/@arcgis/core/assets/esri/themes/light/main.css" media="print" onload="this.media='all'" />
-    <link rel="stylesheet" href="../landcare/app.css?v=20261027-field1" />
-    <link rel="stylesheet" href="../landcare/field-workspace.css?v=20261027-field1" />
+    <link rel="stylesheet" href="../landcare/app.css?v=20261027-field2" />
+    <link rel="stylesheet" href="../landcare/field-workspace.css?v=20261027-field2" />
   </head>
   <body data-page="contractor">
     <header class="app-header">
@@ -172,7 +172,7 @@
         </section>
       </section>
       <details class="report-diagnostics">
-        <summary>Troubleshooting and report totals</summary><button type="button" id="pilotRefreshReports">Refresh progress</button><button type="button" id="reloadApp">Reload app</button>
+        <summary>Troubleshooting and report totals</summary><button type="button" id="pilotRefreshReports">Refresh progress</button><button type="button" id="reloadApp">Reload app</button><button type="button" id="copyOrganizationLink">Copy organization link</button><p id="organizationLinkStatus" role="status"></p>
         <p>Repeat visits add reports and parcel visits, not additional fulfilled parcels. The most recent submission determines each parcel status for the selected period. Older reports remain in history.</p>
         <p id="pilotReportMessage" role="status">Reading reports…</p>
         <div id="pilotReportCounts" class="diagnostic-counts"></div>
@@ -196,11 +196,11 @@
         <div class="discard-actions"><button value="cancel" autofocus>Go back</button><button value="continue">Yes, report again</button></div>
       </form>
     </dialog>
-    <script type="module" src="../landcare/workspace-ui.js?v=20261027-field1"></script>
-    <script type="module" src="../landcare/filter-ui.js?v=20261027-field1"></script>
-    <script type="module" src="../landcare/survey-submission.js?v=20261027-field1"></script>
-    <script type="module" src="../landcare/contractor-overview.js?v=20261027-field1"></script>
-    <script type="module" src="../landcare/pilot-reporting-ui.js?v=20261027-field1"></script>
+    <script type="module" src="../landcare/workspace-ui.js?v=20261027-field2"></script>
+    <script type="module" src="../landcare/filter-ui.js?v=20261027-field2"></script>
+    <script type="module" src="../landcare/survey-submission.js?v=20261027-field2"></script>
+    <script type="module" src="../landcare/contractor-overview.js?v=20261027-field2"></script>
+    <script type="module" src="../landcare/pilot-reporting-ui.js?v=20261027-field2"></script>
   </body>
 </html>
 

@@ -1,19 +1,19 @@
-import {confirmPreviouslyReported} from './repeat-warning.js?v=20261027-field1';
-import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-field1";
-import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261027-field1';
-import { parcelSymbol, labelSymbol, declutterMapLabels } from "./map-design.js?v=20261027-field1";
-import {readParcelFilters,matchesParcelFilters,STATUS_LABELS} from "./parcel-filters.js?v=20261027-field1";
-import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-field1";
-import { parcelBlockLot } from "./parcel-label.js?v=20261027-field1";
-import { ParcelSelection } from "./parcel-selection.js?v=20261027-field1";
-import { currentPeriodLabel, previousPeriodLabel, assignmentPeriodLabel } from "./service-period.js?v=20261027-field1";
-import { buildPilotSurveyUrl } from "./pilot-survey-url.js?v=20261027-field1";
-import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261027-field1";
+import {confirmPreviouslyReported} from './repeat-warning.js?v=20261027-field2';
+import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-field2";
+import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261027-field2';
+import { parcelSymbol, labelSymbol, declutterMapLabels } from "./map-design.js?v=20261027-field2";
+import {readParcelFilters,matchesParcelFilters,STATUS_LABELS} from "./parcel-filters.js?v=20261027-field2";
+import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-field2";
+import { parcelBlockLot } from "./parcel-label.js?v=20261027-field2";
+import { ParcelSelection } from "./parcel-selection.js?v=20261027-field2";
+import { currentPeriodLabel, previousPeriodLabel, assignmentPeriodLabel } from "./service-period.js?v=20261027-field2";
+import { buildPilotSurveyUrl } from "./pilot-survey-url.js?v=20261027-field2";
+import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261027-field2";
 import {
   ASSIGNMENT_HISTORY_LAYER_URL,
   SURVEY123_PREFILL_FIELDS,
   SURVEY123_SHARE_URL
-} from "./survey-submission-config.js?v=20261027-field1";
+} from "./survey-submission-config.js?v=20261027-field2";
 
 let Map,MapView,Graphic,addFindMyLocation;
 const container = document.getElementById("surveyEmbed");
@@ -654,3 +654,5 @@ initializeParcelMap().catch((error) => {
 
 
 function readSavedOrganization() {try {return localStorage.getItem('landcare-organization')||'';} catch {return '';}}
+
+document.addEventListener('landcare:edit-selection',async()=>{if(await confirmReportChange()) {invalidatePilotForm();parcelMapNode.scrollIntoView({behavior:'smooth',block:'center'});}});

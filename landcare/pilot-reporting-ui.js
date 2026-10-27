@@ -1,10 +1,10 @@
-import { summarizePilotReports } from './pilot-reporting.js?v=20261027-field1';
-import { fetchPilotResults } from './pilot-results-feed.js?v=20261027-field1';
+import { summarizePilotReports } from './pilot-reporting.js?v=20261027-field2';
+import { fetchPilotResults } from './pilot-results-feed.js?v=20261027-field2';
 
 const message=document.getElementById('pilotReportMessage');
 const cards=document.getElementById('pilotReportCounts');
 const refresh=document.getElementById('pilotRefreshReports');
-let snapshot=null;
+let snapshot=null,loadVersion=0;
 let context={period:'',organization:'',assignments:[]};
 function signal(statuses, result=null) {
   document.dispatchEvent(new CustomEvent('landcare:pilot-report-status',{detail:{...context,statuses,result,parentLayerUrl:snapshot?.parentLayerUrl}}));
@@ -30,21 +30,23 @@ function render() {
   } catch(error) {message.textContent=`Pilot counts unavailable: ${error.message}`;document.getElementById('pilotFeedStatus').textContent='Progress unavailable. Refresh progress to retry.';signal(null);}
 }
 async function reload() {
+  const version=++loadVersion,scope={period:context.period,organization:context.organization};
+  if(!scope.period||!scope.organization||!context.assignments.length) {snapshot=null;refresh.disabled=false;render();return;}
   refresh.disabled=true;
   message.textContent='Reading reports…';
   document.getElementById('pilotFeedStatus').textContent='Refreshing progress…';
-  try {snapshot=await fetchPilotResults();render();}
-  catch(error) {snapshot=null;cards.replaceChildren();signal(null);message.textContent=error.message;document.getElementById('pilotFeedStatus').textContent='Progress unavailable. Your selection is preserved; use Refresh progress to retry.';}
-  finally {refresh.disabled=false;}
+  try {const loaded=await fetchPilotResults(scope);if(version!==loadVersion)return;snapshot=loaded;render();}
+  catch(error) {if(version!==loadVersion)return;snapshot=null;cards.replaceChildren();signal(null);message.textContent=error.message;document.getElementById('pilotFeedStatus').textContent='Progress unavailable. Your selection is preserved; use Refresh progress to retry.';}
+  finally {if(version===loadVersion)refresh.disabled=false;}
 }
 refresh.addEventListener('click',reload);
 document.addEventListener('landcare:pilot-submitted',reload);
 document.addEventListener('landcare:contractor-context',event=>{
   if(context.period!==event.detail.month||context.organization!==event.detail.organization) {
-    context={period:event.detail.month,organization:event.detail.organization,assignments:[]};render();
+    loadVersion++;snapshot=null;context={period:event.detail.month,organization:event.detail.organization,assignments:[]};render();
   }
 });
-document.addEventListener('landcare:pilot-assignments',event=>{context=event.detail;render();});
+document.addEventListener('landcare:pilot-assignments',event=>{context=event.detail;reload();});
 document.addEventListener('landcare:pilot-overview-ready',render);
 reload();
 

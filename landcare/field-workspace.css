@@ -165,7 +165,7 @@ body[data-page="contractor"] .filter-status-bar {position:static;order:0;display
 .workspace-filters select {min-height:44px;margin:8px 0;max-width:100%;}
 body[data-page="contractor"] .contractor-map-key button {min-height:44px;}
 body.report-open .assignment-check,body.report-open .workspace-search,body.report-open .workspace-filters,body.report-open .workspace-progress {display:none;}
-body.report-open .contractor-context select {pointer-events:none;opacity:.75;}
+
 @media(max-width:700px) {
  body[data-page="contractor"] .contractor-shell {gap:8px;}
  body[data-page="contractor"] .contractor-context {grid-template-columns:1fr 1fr;padding:10px;gap:6px 8px;}
@@ -182,3 +182,5 @@ body.report-open .contractor-context select {pointer-events:none;opacity:.75;}
  .feed-status {font-size:11px;margin:0;}
  .filter-summary {font-size:12px;margin:0;}
 }
+
+@media(max-width:700px){#parcelSearchResult{display:none;} .workspace-progress summary{font-size:12px;} .report-guidance{font-size:12px;} }

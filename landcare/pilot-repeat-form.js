@@ -1,11 +1,11 @@
-import {draftKey,readDraft,saveDraft,clearDraft} from './report-draft.js?v=20261027-field1';
-import { withTimeout } from './loading.js?v=20261027-field1';
-import { buildRepeatQuestionValues, verifyRepeatValues } from './pilot-repeat-data.js?v=20261027-field1';
-import { initializeRepeat } from './pilot-repeat-initialize.js?v=20261027-field1';
-import { assignmentType } from './assignment-type.js?v=20261027-field1';
-import { parcelBlockLot } from './parcel-label.js?v=20261027-field1';
-import { assignmentPeriodLabel } from './service-period.js?v=20261027-field1';
-import { setReportDirty, setReportPending, clearReportGuard } from './report-guard.js?v=20261027-field1';
+import {draftKey,readDraft,saveDraft,clearDraft} from './report-draft.js?v=20261027-field2';
+import { withTimeout } from './loading.js?v=20261027-field2';
+import { buildRepeatQuestionValues, verifyRepeatValues } from './pilot-repeat-data.js?v=20261027-field2';
+import { initializeRepeat } from './pilot-repeat-initialize.js?v=20261027-field2';
+import { assignmentType } from './assignment-type.js?v=20261027-field2';
+import { parcelBlockLot } from './parcel-label.js?v=20261027-field2';
+import { assignmentPeriodLabel } from './service-period.js?v=20261027-field2';
+import { setReportDirty, setReportPending, clearReportGuard } from './report-guard.js?v=20261027-field2';
 
 let sdkPromise;
 async function loadSurveySdk() {
@@ -33,8 +33,10 @@ export async function openPilotRepeatForm(container,assignments,isCurrent) {
   for(const item of assignments) {const li=document.createElement('li');li.textContent=`${parcelBlockLot(item.parcelNumber)} · ${item.address} · ${assignmentType(item)}`;list.append(li);}
   parcels.append(toggle,list);
   const guidance=document.createElement('p');guidance.className='report-guidance';
-  guidance.textContent='Report Request Only parcels only after the LandCare team asks you to service them. Yes is selected by default; choose No if obligations were not fulfilled. The answer and photos cover every selected parcel. For No, explain what prevented completion in Comments and photograph the current conditions. For Yes, photograph the completed work. Use separate reports for different outcomes. Take enough photos to show the whole selected area.';
-  summary.append(heading,context,parcels,guidance);
+  guidance.textContent='Report Request Only parcels only after the LandCare team asks you to service them. Yes is selected by default; choose No if obligations were not fulfilled. The answer and photos cover every selected parcel. For No, explain what prevented completion in Comments and photograph the current conditions. For Yes, photograph the completed work. Use separate reports for different outcomes. Use one photo that represents the selected parcels. Leave out parcels needing separate documentation and submit a separate report for them.';
+  const change=document.createElement('button');change.type='button';change.className='report-more';change.textContent='Change selected parcels';
+  change.addEventListener('click',()=>document.dispatchEvent(new Event('landcare:edit-selection')));
+  summary.append(heading,context,parcels,guidance,change);
   const host=document.createElement('div');host.id=`pilot-repeat-${crypto.randomUUID()}`;host.className='pilot-form-host';
   const message=document.createElement('p');message.className='report-feedback';message.setAttribute('role','status');message.textContent='Preparing your service report…';
   const submit=document.createElement('button');submit.className='report-submit';submit.type='button';
@@ -101,7 +103,7 @@ export async function openPilotRepeatForm(container,assignments,isCurrent) {
           '& .question-label':{fontSize:'17px !important'}
         });
         form.setTheme({form:{backgroundColor:'#ffffff',primaryColor:'#007eae',primaryTextColor:'#ffffff',textColor:'#183b50'},webpage:{backgroundColor:'#ffffff'}});
-        clearTimeout(loadingTimer);resize(data);ready=true;setReportDirty();submit.disabled=false;message.textContent=savedDraft?'Answer and comments restored in this tab. Reattach your photo before submitting.':'Confirm the answer, add photos showing the selected area, and submit.';
+        clearTimeout(loadingTimer);resize(data);ready=true;setReportDirty();submit.disabled=false;message.textContent=savedDraft?'Answer and comments restored in this tab. Reattach your photo before submitting.':'Confirm the answer, add a photo representing the selected parcels, and submit.';
         // Protect an opened form conservatively: cross-origin value-change
         // messages can arrive after a quick click on another page control.
       } catch(error) {clearTimeout(loadingTimer);if(isCurrent()) {document.body?.classList.remove('report-open');message.textContent=`Report could not load: ${error.message} Reopen the report to retry.`;}}
