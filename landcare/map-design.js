@@ -13,8 +13,8 @@ export function parcelSymbol(status, selected=false, requestOnly=false) {
 }
 
 export function labelSymbol(text,selected=false) {
-  return {type:'text',text,color:selected?'#005579':'#314956',haloColor:'#ffffff',haloSize:1.5,
-    font:{family:'Arial',size:10,weight:selected?'bold':'normal'},horizontalAlignment:'center',verticalAlignment:'middle',yoffset:0};
+  return {type:'text',text,color:selected?'#005579':'#314956',haloColor:'#ffffff',haloSize:0.9,
+    font:{family:'Arial',size:9,weight:'bold'},horizontalAlignment:'center',verticalAlignment:'middle',yoffset:0};
 }
 
 export function nonOverlappingLabels(candidates,{width,height,scale,maxScale=1800,focusedId=''}) {
@@ -47,4 +47,30 @@ export function declutterMapLabels(view,graphics,{focusedId='',selectedIds=new S
     graphic.visible=visible.has(id);
     graphic.symbol=labelSymbol(graphic.symbol.text,selectedIds.has(id)||id===String(focusedId));
   }
+}
+
+// Choose the widest interior span near the parcel's middle. Scanline
+// parity respects holes and disconnected rings without depending on ring order.
+export function parcelLabelPoint(geometry) {
+  const rings=(geometry?.rings||[]).map(r=>r.filter(p=>Number.isFinite(p[0])&&Number.isFinite(p[1]))).filter(r=>r.length>=3);
+  if(!rings.length) return null;
+  const points=rings.flat();
+  const minY=Math.min(...points.map(p=>p[1])), maxY=Math.max(...points.map(p=>p[1]));
+  let best=null;
+  for(let step=0;step<21;step++) {
+    const y=minY+(maxY-minY)*(step+0.5)/21;
+    const crossings=[];
+    for(const ring of rings) for(let i=0,j=ring.length-1;i<ring.length;j=i++) {
+      const a=ring[j],b=ring[i];
+      if((a[1]>y)!==(b[1]>y)) crossings.push(a[0]+(y-a[1])*(b[0]-a[0])/(b[1]-a[1]));
+    }
+    crossings.sort((a,b)=>a-b);
+    for(let i=0;i+1<crossings.length;i+=2) {
+      const span=crossings[i+1]-crossings[i];
+      // Favor central rows when spans are equal; never place in a hole.
+      const score=span*(1-0.2*Math.abs((y-minY)/(maxY-minY||1)-0.5));
+      if(!best||score>best.score) best={score,point:[(crossings[i]+crossings[i+1])/2,y]};
+    }
+  }
+  return best?.point||null;
 }

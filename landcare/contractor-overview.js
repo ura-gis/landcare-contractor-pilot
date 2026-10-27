@@ -1,11 +1,11 @@
-import {addImageryBasemapToggle} from './imagery-basemap.js?v=20261027-overview1';
-import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-overview1";
-import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261027-overview1";
-import {readParcelFilters,matchesParcelFilters,compareParcels,STATUS_LABELS} from "./parcel-filters.js?v=20261027-overview1";
-import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-overview1";
-import { fetchPilotReportPhotos } from './pilot-results-feed.js?v=20261027-overview1';
-import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261027-overview1';
-import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261027-overview1";
+import {addImageryBasemapToggle} from './imagery-basemap.js?v=20261027-labels1';
+import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-labels1";
+import { parcelSymbol,labelSymbol,declutterMapLabels,parcelLabelPoint } from "./map-design.js?v=20261027-labels1";
+import {readParcelFilters,matchesParcelFilters,compareParcels,STATUS_LABELS} from "./parcel-filters.js?v=20261027-labels1";
+import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-labels1";
+import { fetchPilotReportPhotos } from './pilot-results-feed.js?v=20261027-labels1';
+import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261027-labels1';
+import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261027-labels1";
 import {
   cleanOrganization,
   fetchArcgisJson,
@@ -14,7 +14,7 @@ import {
   loadSurvey123EvidenceByPeriod,
   parcelDigits,
   survey123EvidenceMatchesAssignment
-} from "./survey-layer.js?v=20261027-overview1";
+} from "./survey-layer.js?v=20261027-labels1";
 
 let Map,MapView,Graphic,GraphicsLayer,BasemapToggle,Zoom,addFindMyLocation;
 const monthSelect = document.getElementById("assignmentMonth");
@@ -238,17 +238,8 @@ function symbolFor(feature) {
 
 function labelGraphic(feature) {
   const geometry = featureGeometry(feature);
-  const points = (geometry?.rings || []).flat().filter((point) => (
-    Array.isArray(point) && Number.isFinite(Number(point[0])) && Number.isFinite(Number(point[1]))
-  ));
-  const center = points.length
-    ? {
-        type: "point",
-        longitude: (Math.min(...points.map((point) => Number(point[0]))) + Math.max(...points.map((point) => Number(point[0])))) / 2,
-        latitude: (Math.min(...points.map((point) => Number(point[1]))) + Math.max(...points.map((point) => Number(point[1])))) / 2,
-        spatialReference: { wkid: 4326 }
-      }
-    : null;
+  const anchor=parcelLabelPoint(geometry);
+  const center=anchor ? {type:'point',longitude:anchor[0],latitude:anchor[1],spatialReference:{wkid:4326}} : null;
   if (!center) return null;
   const selected = String(feature.properties.objectid) === state.selectedObjectId;
   const graphic = new Graphic({

@@ -1,20 +1,20 @@
-import {addImageryBasemapToggle} from './imagery-basemap.js?v=20261027-overview1';
-import {confirmPreviouslyReported} from './repeat-warning.js?v=20261027-overview1';
-import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-overview1";
-import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261027-overview1';
-import { parcelSymbol, labelSymbol, declutterMapLabels } from "./map-design.js?v=20261027-overview1";
-import {readParcelFilters,matchesParcelFilters,STATUS_LABELS} from "./parcel-filters.js?v=20261027-overview1";
-import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-overview1";
-import { parcelBlockLot } from "./parcel-label.js?v=20261027-overview1";
-import { ParcelSelection } from "./parcel-selection.js?v=20261027-overview1";
-import { currentPeriodLabel, previousPeriodLabel, assignmentPeriodLabel } from "./service-period.js?v=20261027-overview1";
-import { buildPilotSurveyUrl } from "./pilot-survey-url.js?v=20261027-overview1";
-import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261027-overview1";
+import {addImageryBasemapToggle} from './imagery-basemap.js?v=20261027-labels1';
+import {confirmPreviouslyReported} from './repeat-warning.js?v=20261027-labels1';
+import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-labels1";
+import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261027-labels1';
+import { parcelSymbol, labelSymbol, declutterMapLabels, parcelLabelPoint } from "./map-design.js?v=20261027-labels1";
+import {readParcelFilters,matchesParcelFilters,STATUS_LABELS} from "./parcel-filters.js?v=20261027-labels1";
+import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-labels1";
+import { parcelBlockLot } from "./parcel-label.js?v=20261027-labels1";
+import { ParcelSelection } from "./parcel-selection.js?v=20261027-labels1";
+import { currentPeriodLabel, previousPeriodLabel, assignmentPeriodLabel } from "./service-period.js?v=20261027-labels1";
+import { buildPilotSurveyUrl } from "./pilot-survey-url.js?v=20261027-labels1";
+import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261027-labels1";
 import {
   ASSIGNMENT_HISTORY_LAYER_URL,
   SURVEY123_PREFILL_FIELDS,
   SURVEY123_SHARE_URL
-} from "./survey-submission-config.js?v=20261027-overview1";
+} from "./survey-submission-config.js?v=20261027-labels1";
 
 let Map,MapView,Graphic,addFindMyLocation;
 const container = document.getElementById("surveyEmbed");
@@ -219,12 +219,7 @@ function normalizeAssignmentGeometry(geometry) {
 }
 
 function polygonCenter(geometry) {
-  const points = geometry?.rings?.flat?.(1) || [];
-  const coordinates = points.filter((point) => Array.isArray(point) && Number.isFinite(Number(point[0])) && Number.isFinite(Number(point[1])));
-  if (!coordinates.length) return null;
-  const xs = coordinates.map((point) => Number(point[0]));
-  const ys = coordinates.map((point) => Number(point[1]));
-  return [(Math.min(...xs) + Math.max(...xs)) / 2, (Math.min(...ys) + Math.max(...ys)) / 2];
+  return parcelLabelPoint(geometry);
 }
 
 function parcelLabelGraphic(assignment) {
