@@ -1,11 +1,11 @@
-import {draftKey,readDraft,saveDraft,clearDraft} from './report-draft.js?v=20261027-locate2';
-import { withTimeout } from './loading.js?v=20261027-locate2';
-import { buildRepeatQuestionValues, verifyRepeatValues } from './pilot-repeat-data.js?v=20261027-locate2';
-import { initializeRepeat } from './pilot-repeat-initialize.js?v=20261027-locate2';
-import { assignmentType } from './assignment-type.js?v=20261027-locate2';
-import { parcelBlockLot } from './parcel-label.js?v=20261027-locate2';
-import { assignmentPeriodLabel } from './service-period.js?v=20261027-locate2';
-import { setReportDirty, setReportPending, clearReportGuard } from './report-guard.js?v=20261027-locate2';
+import {draftKey,readDraft,saveDraft,clearDraft} from './report-draft.js?v=20261027-imagery1';
+import { withTimeout } from './loading.js?v=20261027-imagery1';
+import { buildRepeatQuestionValues, verifyRepeatValues } from './pilot-repeat-data.js?v=20261027-imagery1';
+import { initializeRepeat } from './pilot-repeat-initialize.js?v=20261027-imagery1';
+import { assignmentType } from './assignment-type.js?v=20261027-imagery1';
+import { parcelBlockLot } from './parcel-label.js?v=20261027-imagery1';
+import { assignmentPeriodLabel } from './service-period.js?v=20261027-imagery1';
+import { setReportDirty, setReportPending, clearReportGuard } from './report-guard.js?v=20261027-imagery1';
 
 let sdkPromise;
 async function loadSurveySdk() {

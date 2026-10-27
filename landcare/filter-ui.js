@@ -1,4 +1,4 @@
-import {readParcelFilters,STATUS_LABELS} from './parcel-filters.js?v=20261027-locate2';
+import {readParcelFilters,STATUS_LABELS} from './parcel-filters.js?v=20261027-imagery1';
 const type=document.getElementById('assignmentType'),search=document.getElementById('parcelSearch');
 const buttons=[...document.querySelectorAll('[data-contractor-status]')];
 function setStatus(status) {

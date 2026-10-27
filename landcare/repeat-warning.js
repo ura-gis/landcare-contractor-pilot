@@ -1,4 +1,4 @@
-import {parcelBlockLot} from './parcel-label.js?v=20261027-locate2';
+import {parcelBlockLot} from './parcel-label.js?v=20261027-imagery1';
 let decision;
 export async function confirmPreviouslyReported(assignments,statuses) {
   const reported=assignments.filter(a=>['fulfilled','follow-up'].includes(statuses?.[a.objectId]));

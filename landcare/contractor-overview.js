@@ -1,10 +1,11 @@
-import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-locate2";
-import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261027-locate2";
-import {readParcelFilters,matchesParcelFilters,compareParcels,STATUS_LABELS} from "./parcel-filters.js?v=20261027-locate2";
-import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-locate2";
-import { fetchPilotReportPhotos } from './pilot-results-feed.js?v=20261027-locate2';
-import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261027-locate2';
-import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261027-locate2";
+import {addImageryBasemapToggle} from './imagery-basemap.js?v=20261027-imagery1';
+import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-imagery1";
+import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261027-imagery1";
+import {readParcelFilters,matchesParcelFilters,compareParcels,STATUS_LABELS} from "./parcel-filters.js?v=20261027-imagery1";
+import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-imagery1";
+import { fetchPilotReportPhotos } from './pilot-results-feed.js?v=20261027-imagery1';
+import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261027-imagery1';
+import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261027-imagery1";
 import {
   cleanOrganization,
   fetchArcgisJson,
@@ -13,7 +14,7 @@ import {
   loadSurvey123EvidenceByPeriod,
   parcelDigits,
   survey123EvidenceMatchesAssignment
-} from "./survey-layer.js?v=20261027-locate2";
+} from "./survey-layer.js?v=20261027-imagery1";
 
 let Map,MapView,Graphic,GraphicsLayer,BasemapToggle,Zoom,addFindMyLocation;
 const monthSelect = document.getElementById("assignmentMonth");
@@ -541,12 +542,12 @@ async function initializeMap() {
     map: state.map,
     center: [-79.9959, 40.4406],
     zoom: 12,
-    ui: { components: [] }
+    ui: { components: ["attribution"] }
   });
   await withTimeout(state.view.when(),"The progress map");
   addFindMyLocation(state.view);
   state.view.ui.add(new Zoom({ view: state.view }), "bottom-right");
-  state.view.ui.add(new BasemapToggle({ view: state.view, nextBasemap: "hybrid" }), "bottom-right");
+  addImageryBasemapToggle(state.view);
   state.view.watch("stationary",updateLabelVisibility);
   state.view.watch("size",updateLabelVisibility);
   state.view.on("click", async (event) => {
