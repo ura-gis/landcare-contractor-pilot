@@ -1,19 +1,19 @@
-import {confirmPreviouslyReported} from './repeat-warning.js?v=20261027-field3';
-import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-field3";
-import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261027-field3';
-import { parcelSymbol, labelSymbol, declutterMapLabels } from "./map-design.js?v=20261027-field3";
-import {readParcelFilters,matchesParcelFilters,STATUS_LABELS} from "./parcel-filters.js?v=20261027-field3";
-import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-field3";
-import { parcelBlockLot } from "./parcel-label.js?v=20261027-field3";
-import { ParcelSelection } from "./parcel-selection.js?v=20261027-field3";
-import { currentPeriodLabel, previousPeriodLabel, assignmentPeriodLabel } from "./service-period.js?v=20261027-field3";
-import { buildPilotSurveyUrl } from "./pilot-survey-url.js?v=20261027-field3";
-import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261027-field3";
+import {confirmPreviouslyReported} from './repeat-warning.js?v=20261027-survey1';
+import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-survey1";
+import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261027-survey1';
+import { parcelSymbol, labelSymbol, declutterMapLabels } from "./map-design.js?v=20261027-survey1";
+import {readParcelFilters,matchesParcelFilters,STATUS_LABELS} from "./parcel-filters.js?v=20261027-survey1";
+import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-survey1";
+import { parcelBlockLot } from "./parcel-label.js?v=20261027-survey1";
+import { ParcelSelection } from "./parcel-selection.js?v=20261027-survey1";
+import { currentPeriodLabel, previousPeriodLabel, assignmentPeriodLabel } from "./service-period.js?v=20261027-survey1";
+import { buildPilotSurveyUrl } from "./pilot-survey-url.js?v=20261027-survey1";
+import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261027-survey1";
 import {
   ASSIGNMENT_HISTORY_LAYER_URL,
   SURVEY123_PREFILL_FIELDS,
   SURVEY123_SHARE_URL
-} from "./survey-submission-config.js?v=20261027-field3";
+} from "./survey-submission-config.js?v=20261027-survey1";
 
 let Map,MapView,Graphic,addFindMyLocation;
 const container = document.getElementById("surveyEmbed");
@@ -43,7 +43,7 @@ document.addEventListener('landcare:pilot-report-status', event => {
   const detail=event.detail;
   if(detail.period!==monthSelect.value || detail.organization!==cleanOrganization(organizationSelect.value)) return;
   pilotStatuses=detail.statuses;
-  document.getElementById('pilotMapSource').textContent=pilotStatuses ? 'Map source: pilot reports (unreviewed)' : 'Pilot results unavailable — refresh pilot results';
+  document.getElementById('pilotMapSource').textContent=pilotStatuses ? 'Map source: pilot surveys (unreviewed)' : 'Pilot results unavailable — refresh pilot results';
   document.getElementById('pilotReferenceKey').hidden=true;
   document.getElementById('pilotFulfilledKey').hidden=!pilotStatuses;
   document.getElementById('pilotFollowUpKey').hidden=!pilotStatuses;
@@ -79,9 +79,9 @@ function renderSelection() {
   document.getElementById('pilotDockLabel').textContent=`${items.length} parcel${items.length===1?'':'s'} selected`;
   document.getElementById('pilotDockPeriod').textContent=monthSelect.value ? assignmentPeriodLabel(monthSelect.value) : '';
   document.getElementById('selectionDock').hidden=!items.length || document.body.dataset.activeTab!=='submit';
-  continueButton.textContent = `Open report for ${items.length || 'selected'} parcel${items.length === 1 ? '' : 's'}`;
+  continueButton.textContent = `Open survey for ${items.length || 'selected'} parcel${items.length === 1 ? '' : 's'}`;
   selectionHelp.textContent = items.length > 1
-    ? 'The same answer and photos must cover every selected parcel. Use separate reports for different outcomes.'
+    ? 'The same answer and photos must cover every selected parcel. Use separate surveys for different outcomes.'
     : 'Add more parcels or continue to review and report.';
   selectionList.replaceChildren(...items.map(item => {
     const row = document.createElement('li');
@@ -121,7 +121,7 @@ function resetSelection() {
   selectedAssignment = null;
   selectedParcelLabel.textContent='Tap parcels on the map or add them from the list';
   selectedParcelBadge.hidden=true;
-  selectedParcelMeta.textContent='Blue outlines mark the parcels selected for this report.';
+  selectedParcelMeta.textContent='Blue outlines mark the parcels selected for this survey.';
   invalidatePilotForm();
   renderSelection();
 }
@@ -313,7 +313,7 @@ function showAvailableParcels() {
   if (!availableParcelGraphics.length) return;
   selectedParcelLabel.textContent = "Tap an outlined parcel on the map or use the list";
   selectedParcelBadge.hidden = true;
-  selectedParcelMeta.textContent = "Solid outlines are Active; dashed outlines are Request Only. Report Request Only service only after the team asks you to.";
+  selectedParcelMeta.textContent = "Solid outlines are Active; dashed outlines are Request Only. Submit a Request Only survey only after the team asks you to.";
   parcelMapView.goTo(availableParcelGraphics.filter(g=>!g.attributes?.parcelLabel), { padding:40,duration:450 }).catch(() => {});
   applyAssignmentScope();
   syncAvailableParcelLabels();
@@ -396,11 +396,11 @@ function updatePeriodNotice() {
   const fullRange=document.createElement('p');fullRange.textContent=range.split(': ')[1];fullRange.className='period-range';
   const deadline=document.createElement('p');
   deadline.className=previous ? 'late-period-notice' : 'period-deadline';
-  deadline.textContent=previous ? `Late report: this will count toward ${range}. Your actual submission time is recorded.` : `Submit the same day, by ${range.split(' – ')[1]} at 11:59 p.m. Eastern.`;
+  deadline.textContent=previous ? `Late survey: this will count toward ${range}. Your actual submission time is recorded.` : `Submit the same day, by ${range.split(' – ')[1]} at 11:59 p.m. Eastern.`;
   const rules=document.createElement('details');
   const summary=document.createElement('summary');summary.textContent='How service periods work';
-  const text=document.createElement('p');text.textContent='Periods run from the 15th through the 14th, Eastern time. Submit immediately after work, preferably the same day. If you miss the deadline, choose Previous period. Your report counts toward that selected period; your actual submission timestamp is preserved. Periods without published assignments cannot be selected.';
-  summary.textContent='Dates and reporting rules';
+  const text=document.createElement('p');text.textContent='Periods run from the 15th through the 14th, Eastern time. Submit immediately after work, preferably the same day. If you miss the deadline, choose Previous period. Your survey counts toward that selected period; your actual submission timestamp is preserved. Periods without published assignments cannot be selected.';
+  summary.textContent='Dates and survey submission rules';
   rules.append(summary,fullRange,deadline,text);notice.append(rules);
 }
 
@@ -566,7 +566,7 @@ lookupForm.addEventListener("submit", async (event) => {
   document.body.classList.add("report-open");
   const version = formVersion;
   const chosen = selection.values().map(item => ({...item}));
-  status.textContent = `Opening the pilot report for ${chosen.length} parcel(s).`;
+  status.textContent = `Opening the pilot survey for ${chosen.length} parcel(s).`;
   try {
     await openPilotRepeatForm(container, chosen, () => version === formVersion);
     if (version === formVersion) container.scrollIntoView({behavior:'smooth',block:'start'});
@@ -574,7 +574,7 @@ lookupForm.addEventListener("submit", async (event) => {
     document.body.classList.remove("report-open");
     if (version === formVersion) {
       status.textContent = `Pilot form could not open: ${error.message}`;
-      container.textContent = 'No report was submitted. Keep this selection and retry opening the pilot form.';
+      container.textContent = 'No survey was submitted. Keep this selection and retry opening the pilot form.';
     }
   }
 });
@@ -599,9 +599,9 @@ function applyAssignmentScope() {
   for(const graphic of availableParcelGraphics) graphic.visible=ids.has(String(graphic.attributes.assignmentObjectId));
   const hidden=selection.values().filter(item=>!ids.has(item.objectId)).length;
   const summary=document.getElementById('parcelFilterSummary');
-  summary.textContent=organizationSelect.value ? `Showing ${matching.length} of ${assignments.length} parcels · ${filters.type==='all'?'Active + Request Only':filters.type==='request'?'Request Only':'Active'} · ${STATUS_LABELS[filters.status]}${filters.query?` · Search: ${filters.query}`:''}${!pilotStatuses&&filters.status!=='all'?' · Report status unavailable; refresh progress or choose All statuses.':''}` : 'Choose an organization to see matching parcels.';
+  summary.textContent=organizationSelect.value ? `Showing ${matching.length} of ${assignments.length} parcels · ${filters.type==='all'?'Active + Request Only':filters.type==='request'?'Request Only':'Active'} · ${STATUS_LABELS[filters.status]}${filters.query?` · Search: ${filters.query}`:''}${!pilotStatuses&&filters.status!=='all'?' · Survey status unavailable; refresh progress or choose All statuses.':''}` : 'Choose an organization to see matching parcels.';
   document.getElementById('parcelSearchResult').textContent=matching.length ? `${matching.length} parcels match the filters in the map and list.` : assignments.length ? 'No parcels match. Use Clear filters to see all assigned parcels.' : '';
-  if(hidden) selectionHelp.textContent=`${hidden} selected parcel${hidden===1?' is':'s are'} hidden by the filters but still included in your report. Review the selection before continuing.`;
+  if(hidden) selectionHelp.textContent=`${hidden} selected parcel${hidden===1?' is':'s are'} hidden by the filters but still included in your survey. Review the selection before continuing.`;
 }
 document.addEventListener('landcare:filters-changed',()=>{
   renderSelection();
@@ -635,7 +635,7 @@ loadRecentMonths()
   });
 
 initializeParcelMap().catch((error) => {
-  selectedParcelMeta.textContent = `${error.message} You can still select parcels from the list and report service.`;
+  selectedParcelMeta.textContent = `${error.message} You can still select parcels from the list and submit a service survey.`;
   parcelMapNode.textContent="Map unavailable. Use the parcel list above, or Reload app to retry.";
 });
 

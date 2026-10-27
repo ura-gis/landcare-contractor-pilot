@@ -1,7 +1,7 @@
-import {currentPeriodLabel} from './service-period.js?v=20261027-field3';
-import {newestReportFirst} from './latest-report.js?v=20261027-field3';
-import {ASSIGNMENT_HISTORY_LAYER_URL} from './survey-submission-config.js?v=20261027-field3';
-import {assignmentType} from './assignment-type.js?v=20261027-field3';
+import {currentPeriodLabel} from './service-period.js?v=20261027-survey1';
+import {newestReportFirst} from './latest-report.js?v=20261027-survey1';
+import {ASSIGNMENT_HISTORY_LAYER_URL} from './survey-submission-config.js?v=20261027-survey1';
+import {assignmentType} from './assignment-type.js?v=20261027-survey1';
 const pin=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
 const guid=v=>String(v||'').replace(/[{}]/g,'').toLowerCase();
 const org=v=>String(v||'').replace(/\s+Primary Contact$/i,'').trim();
@@ -33,7 +33,7 @@ export function projectAssuranceResults({parents,children,assignments,photosByEv
    record_id:`survey123:${eventId}:${key}`,event_id:eventId,child_id:guid(c.globalid),assignment_key:JSON.stringify([scope.period,key,org(a.organization)]),
    assignment_object_id:a.objectId,parcelnumb:key,parcel_number:key,address:a.address,maintained_by:org(a.organization),maintenance_level:assignmentType(a),
    period_label:scope.period,period:`${scope.period}-15`,created_at:time,submission_period:currentPeriodLabel(new Date(time)),is_late:currentPeriodLabel(new Date(time))!==scope.period,
-   additional_notes:p.comments||'',fulfillment_answer:p.did_you_fulfill_your_obligation,evidence_source:'Survey123 contractor report',
+   additional_notes:p.comments||'',fulfillment_answer:p.did_you_fulfill_your_obligation,evidence_source:'Survey123 contractor survey',
    qualified:!!verifiedPhotos,photos:verifiedPhotos?photos:[],image_url:verifiedPhotos?photos[0].image_url:"",geometry:a.geometry});
  }
  const latest=new Map();

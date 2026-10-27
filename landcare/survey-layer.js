@@ -1,6 +1,6 @@
-import { SURVEY123_EVIDENCE_LAYER_URL } from "./survey-submission-config.js?v=20261027-field3";
+import { SURVEY123_EVIDENCE_LAYER_URL } from "./survey-submission-config.js?v=20261027-survey1";
 
-import { fetchWithTimeout } from "./loading.js?v=20261027-field3";
+import { fetchWithTimeout } from "./loading.js?v=20261027-survey1";
 
 export const SURVEY_LAYER_URL =
   "https://services1.arcgis.com/0DMNBNaacQNEfN4H/arcgis/rest/services/regrid_surveys/FeatureServer/0";

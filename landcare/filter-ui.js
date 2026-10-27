@@ -1,11 +1,11 @@
-import {readParcelFilters,STATUS_LABELS} from './parcel-filters.js?v=20261027-field3';
+import {readParcelFilters,STATUS_LABELS} from './parcel-filters.js?v=20261027-survey1';
 const type=document.getElementById('assignmentType'),search=document.getElementById('parcelSearch');
 const buttons=[...document.querySelectorAll('[data-contractor-status]')];
 function setStatus(status) {
   for(const button of buttons) {
     const active=button.dataset.contractorStatus===status;
     button.classList.toggle('is-active',active);button.setAttribute('aria-pressed',String(active));
-    if(button.dataset.contractorStatus==='open') {button.disabled=type.value==='request';button.title=button.disabled?'Active remaining applies only to Active parcels.':'Active parcels whose latest report is No, or have no report';}
+    if(button.dataset.contractorStatus==='open') {button.disabled=type.value==='request';button.title=button.disabled?'Active remaining applies only to Active parcels.':'Active parcels whose latest survey is No, or have no survey';}
   }
 }
 function emit() {

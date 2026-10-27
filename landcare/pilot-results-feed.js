@@ -1,10 +1,10 @@
-import { fetchWithTimeout } from './loading.js?v=20261027-field3';
+import { fetchWithTimeout } from './loading.js?v=20261027-survey1';
 const ITEM = '050caf61aecb400596b340e8ae4bdcb2';
 async function json(url, params={}) {
   const target=new URL(url);
   target.search=new URLSearchParams({f:'json',...params});
   const response=await fetchWithTimeout(target);
-  if(!response.ok) throw new Error(`Pilot results request failed (${response.status}).`);
+  if(!response.ok) throw new Error(`Pilot survey results request failed (${response.status}).`);
   const result=await response.json();
   if(result.error) throw new Error(`Pilot results are not readable: ${result.error.message}. Check public results sharing.`);
   return result;

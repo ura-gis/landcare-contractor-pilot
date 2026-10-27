@@ -1,4 +1,4 @@
-// Original creation time determines the latest submission; edits do not reorder reports.
+// Original creation time determines the latest submission; edits do not reorder surveys.
 function submittedTime(value) {
   const numeric=Number(value);
   if(value!==null && value!=='' && Number.isFinite(numeric)) return numeric;

@@ -1,10 +1,10 @@
-import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-field3";
-import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261027-field3";
-import {readParcelFilters,matchesParcelFilters,compareParcels,STATUS_LABELS} from "./parcel-filters.js?v=20261027-field3";
-import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-field3";
-import { fetchPilotReportPhotos } from './pilot-results-feed.js?v=20261027-field3';
-import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261027-field3';
-import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261027-field3";
+import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-survey1";
+import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261027-survey1";
+import {readParcelFilters,matchesParcelFilters,compareParcels,STATUS_LABELS} from "./parcel-filters.js?v=20261027-survey1";
+import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-survey1";
+import { fetchPilotReportPhotos } from './pilot-results-feed.js?v=20261027-survey1';
+import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261027-survey1';
+import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261027-survey1";
 import {
   cleanOrganization,
   fetchArcgisJson,
@@ -13,7 +13,7 @@ import {
   loadSurvey123EvidenceByPeriod,
   parcelDigits,
   survey123EvidenceMatchesAssignment
-} from "./survey-layer.js?v=20261027-field3";
+} from "./survey-layer.js?v=20261027-survey1";
 
 let Map,MapView,Graphic,GraphicsLayer,BasemapToggle,Zoom,addFindMyLocation;
 const monthSelect = document.getElementById("assignmentMonth");
@@ -63,7 +63,7 @@ function updatePilotMetrics() {
   const result=pilotDetail?.result;
   assignedNode.textContent=formatNumber(result ? result.assigned : state.features.filter(f=>assignmentType(f.properties)==='Active').length);
   const requested=result?.requestOnly;
-  document.getElementById('requestOnlyCounts').textContent=requested ? `${requested.assigned} parcels · ${requested.reported} reported · ${requested.fulfilled} reported fulfilled · ${requested.followUp} needs follow-up` : 'Reports unavailable.';
+  document.getElementById('requestOnlyCounts').textContent=requested ? `${requested.assigned} parcels · ${requested.reported} reported · ${requested.fulfilled} survey complete (Yes) · ${requested.followUp} needs follow-up` : 'Surveys unavailable.';
   submittedNode.textContent=result ? formatNumber(result.fulfilled) : '--';
   openNode.textContent=result ? formatNumber(result.followUp) : '--';
   document.getElementById('contractorUnreportedKpi').textContent=result ? formatNumber(result.unreported) : '—';
@@ -190,24 +190,24 @@ function bindPhotoFallbacks() {
 function parcelDetailMarkup(props, {loadingEvidence=false}={}) {
   const records=props.pilot_reports || [];
   const reports=records.map(report=>`<section class="survey-photo-evidence"><div class="survey-photo-context">
-    <strong>${escapeHtml(report.answer==='Yes' ? 'Reported Yes' : 'Reported No')}</strong>
+    <strong>${escapeHtml(report.answer==='Yes' ? 'Survey answer: Yes' : 'Survey answer: No')}</strong>
     <p>Submitted ${escapeHtml(dateLabel(report.submittedAt))}</p>
     ${report.comments ? `<p><b>Comments:</b> ${escapeHtml(report.comments)}</p>` : ''}</div>
-    ${(report.photos || []).map(photo=>{const url=safeImageUrl(photo.image_url);return url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer"><img data-evidence-photo src="${escapeHtml(url)}" alt="Pilot report photo" loading="lazy" referrerpolicy="no-referrer" /></a>` : '';}).join('')}
-    ${report.photoError ? '<p>Photo could not be read. The saved report remains available.</p>' : ''}
+    ${(report.photos || []).map(photo=>{const url=safeImageUrl(photo.image_url);return url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer"><img data-evidence-photo src="${escapeHtml(url)}" alt="Pilot survey photo" loading="lazy" referrerpolicy="no-referrer" /></a>` : '';}).join('')}
+    ${report.photoError ? '<p>Photo could not be read. The saved survey remains available.</p>' : ''}
   </section>`);
   return `<div class="contractor-parcel-detail__summary">
     <strong>${escapeHtml(blockLot(props.block_lot || props.parcel_number || props.parcel_key))}</strong>
     <span>${escapeHtml(props.address || 'Address unavailable')}</span>
-    <span><b>Type:</b> ${escapeHtml(assignmentType(props))}${assignmentType(props)==='Request Only' ? ' · report service only when asked' : ''}</span>
+    <span><b>Type:</b> ${escapeHtml(assignmentType(props))}${assignmentType(props)==='Request Only' ? ' · submit a service survey only when asked' : ''}</span>
     <span><b>Status:</b> ${escapeHtml(pilotStatusLabel(props.pilot_status))}</span>
     <span><b>Service period:</b> ${escapeHtml(props.period_month || state.month)}</span>
-    <span>${records.length} report(s) for this period. Contractor answers are not staff approval.</span>
+    <span>${records.length} survey(s) for this period. Contractor answers are not staff approval.</span>
     </div>
-    <button type="button" class="contractor-submit-parcel">${records.length ? 'Report another visit' : 'Report service for this parcel'}</button>
-    ${loadingEvidence ? '<p>Loading pilot photos…</p>' : ''}
-    ${reports[0] || (props.pilot_status==='unknown' ? '<p>Pilot reports could not be loaded.</p>' : '<p>No pilot report for this parcel and period.</p>')}
-    ${records.length > 1 ? `<details class="report-history"><summary>View older reports (${records.length-1})</summary>${reports.slice(1).join('')}</details>` : ''}`;
+    <button type="button" class="contractor-submit-parcel">${records.length ? 'Submit another survey' : 'Submit survey for this parcel'}</button>
+    ${loadingEvidence ? '<p>Loading survey photos…</p>' : ''}
+    ${reports[0] || (props.pilot_status==='unknown' ? '<p>Pilot surveys could not be loaded.</p>' : '<p>No pilot survey for this parcel and period.</p>')}
+    ${records.length > 1 ? `<details class="report-history"><summary>View older surveys (${records.length-1})</summary>${reports.slice(1).join('')}</details>` : ''}`;
 }
 function setEmptyState(message) {
   state.features=[];
@@ -299,7 +299,7 @@ function renderList() {
         <td><span class="assignment-type-badge">${escapeHtml(assignmentType(props))}</span></td>
         <td>${escapeHtml(props.council_district || "—")}</td>
         <td><span class="contractor-status-pill ${submitted ? "submitted" : "open"}">${escapeHtml(pilotStatusLabel(statusFor(feature)))}</span>${props.submitted_at ? `<small>${escapeHtml(dateLabel(props.submitted_at))}</small>` : ""}</td>
-        <td><button type="button" class="contractor-list-select" data-contractor-list-id="${escapeHtml(props.objectid)}">View reports / report visit</button></td>
+        <td><button type="button" class="contractor-list-select" data-contractor-list-id="${escapeHtml(props.objectid)}">View surveys / submit survey</button></td>
       </tr>`;
     }).join("")
     : `<tr><td colspan="6" class="contractor-list-empty">No parcels match these filters. Use Clear filters to see all assigned parcels.</td></tr>`;
@@ -503,7 +503,7 @@ async function refreshOverview() {
   detailVersion++;
   titleNode.textContent=`${organization} pilot progress`;
   freshnessNode.textContent=`Loading ${month} assignments…`;
-  detailNode.textContent='Loading assigned parcels and pilot reports…';
+  detailNode.textContent='Loading assigned parcels and pilot surveys…';
   try {
     const data=await fetchAssignmentGeojsonForPeriod(month,organizationSelect.value || organization);
     let features=data.features.filter(feature=>cleanOrganization(feature.properties.organization)===organization && ['Active','Request Only'].includes(feature.properties.maintenance_level));
@@ -513,9 +513,9 @@ async function refreshOverview() {
     state.features=pilotOverviewFeatures(features,pilotDetail);
     state.selectedObjectId='';
     updatePilotMetrics();
-    freshnessNode.textContent=`${month} · ${organization} · pilot reports`;
+    freshnessNode.textContent=`${month} · ${organization} · pilot surveys`;
     renderOverview();
-    detailNode.textContent=features.length ? 'Select a parcel to see its reports or record a visit.' : 'No active parcels in this period.';
+    detailNode.textContent=features.length ? 'Select a parcel to see its surveys or submit a survey.' : 'No active parcels in this period.';
     const geometries=state.layer?.graphics.filter(graphic=>!graphic.attributes?.label).map(graphic=>graphic.geometry);
     if(geometries?.length) state.view?.goTo(geometries,{duration:450}).catch(()=>{});
     document.dispatchEvent(new CustomEvent('landcare:pilot-overview-ready'));

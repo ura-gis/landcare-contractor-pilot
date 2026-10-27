@@ -1,6 +1,6 @@
-import {assignmentType,matchesAssignmentType} from './assignment-type.js?v=20261027-field3';
-import {parcelBlockLot} from './parcel-label.js?v=20261027-field3';
-export const STATUS_LABELS={all:'All statuses',fulfilled:'Reported fulfilled','follow-up':'Needs follow-up',unreported:'Not reported',open:'Active remaining',unknown:'Reports unavailable'};
+import {assignmentType,matchesAssignmentType} from './assignment-type.js?v=20261027-survey1';
+import {parcelBlockLot} from './parcel-label.js?v=20261027-survey1';
+export const STATUS_LABELS={all:'All statuses',fulfilled:'Survey complete (Yes)','follow-up':'Needs follow-up',unreported:'No survey',open:'Active remaining',unknown:'Surveys unavailable'};
 const compact=value=>String(value||'').toLowerCase().replace(/[^a-z0-9]/g,'');
 export function filterRow(row) {
   const p=row.properties||row;

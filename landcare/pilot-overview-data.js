@@ -1,4 +1,4 @@
-import {newestReportFirst} from './latest-report.js?v=20261027-field3';
+import {newestReportFirst} from './latest-report.js?v=20261027-survey1';
 export function pilotOverviewFeatures(features, detail) {
   return features.map(feature=>{
     const props=feature.properties || {};
@@ -10,5 +10,5 @@ export function pilotOverviewFeatures(features, detail) {
 }
 
 export function pilotStatusLabel(status) {
-  return ({fulfilled:'Reported fulfilled', 'follow-up':'Needs follow-up', unreported:'Not reported',unknown:'Pilot results unavailable'})[status] || 'Pilot results unavailable';
+  return ({fulfilled:'Survey complete (Yes)', 'follow-up':'Needs follow-up', unreported:'No survey',unknown:'Pilot results unavailable'})[status] || 'Pilot results unavailable';
 }
