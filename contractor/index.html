@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>LandCare Contractor Portal — Pilot</title>
     <link rel="stylesheet" href="https://js.arcgis.com/4.30/@arcgis/core/assets/esri/themes/light/main.css" media="print" onload="this.media='all'" />
-    <link rel="stylesheet" href="../landcare/app.css?v=20261027-latest2" />
-    <link rel="stylesheet" href="../landcare/field-workspace.css?v=20261027-latest2" />
+    <link rel="stylesheet" href="../landcare/app.css?v=20261027-field1" />
+    <link rel="stylesheet" href="../landcare/field-workspace.css?v=20261027-field1" />
   </head>
   <body data-page="contractor">
     <header class="app-header">
@@ -43,7 +43,7 @@
         <p id="assignmentLookupStatus" class="contractor-context__status" aria-live="polite">Loading the current assignment bundle...</p>
       </section>
 
-      <section class="progress-summary" aria-label="Assignment progress and selection">
+      <details class="workspace-progress" id="workspaceProgress"><summary id="compactProgress">Progress for your organization</summary>      <section class="progress-summary" aria-label="Assignment progress and selection">
         <p class="map-scope-note">Organization totals · Active monthly parcels (map/list filters do not change these totals)</p>
         <div class="contractor-progress-cards pilot-shared-progress" aria-live="polite">
           <article class="contractor-progress-card assigned"><span>Assigned</span><strong id="contractorAssignedKpi">—</strong></article>
@@ -60,21 +60,18 @@
         <strong>Request Only</strong> <span id="requestOnlyCounts">Choose an organization to see these parcels.</span>
         <small>Report service only after the LandCare team asks you to. Separate from Active monthly completion.</small>
       </section>
-      <div class="workspace-tools">
-        <label class="parcel-search scope-selector"><span>Show parcels</span><select id="assignmentType"><option value="all">Active + Request Only</option><option value="active">Active only</option><option value="request">Request Only</option></select></label>
-        <label class="parcel-search"><span>Find a parcel</span><input type="search" id="parcelSearch" placeholder="Block &amp; lot or address" autocomplete="off" /></label>
-        <button type="button" id="pilotRefreshReports">Refresh progress</button><button type="button" id="reloadApp">Reload app</button><button type="button" id="clearParcelFilters">Clear filters</button>
-      </div>
-          <div class="contractor-map-key filter-status-bar" aria-label="Parcel status filters">
-            <button type="button" class="is-active" aria-pressed="true" data-contractor-status="all"><i class="all"></i>All statuses</button>
-            <button type="button" aria-pressed="false" data-contractor-status="fulfilled"><i class="submitted"></i>Reported fulfilled</button>
-            <button type="button" aria-pressed="false" data-contractor-status="follow-up"><i class="follow-up"></i>Needs follow-up</button>
-            <button type="button" aria-pressed="false" data-contractor-status="unreported"><i class="open"></i>Not reported</button>
-            <button type="button" aria-pressed="false" data-contractor-status="open">Active remaining</button>
-            <span><i class="selected"></i>Selected parcel</span>
-            <span class="map-label-hint">Zoom in for parcel labels</span>
-            <span><i class="request-only-key"></i>Dashed = Request Only</span>
-          </div>
+      </details>
+      <div class="workspace-search"><label class="parcel-search"><span>Find a parcel</span><input type="search" id="parcelSearch" placeholder="Block &amp; lot or address" autocomplete="off" /></label></div>
+      <details class="workspace-filters"><summary>Filter parcels <span id="filterBadge"></span></summary>
+        <label class="parcel-search"><span>Show parcels</span><select id="assignmentType"><option value="all">Active + Request Only</option><option value="active">Active only</option><option value="request">Request Only</option></select></label>
+        <div class="contractor-map-key filter-status-bar" aria-label="Parcel status filters">
+          <button type="button" class="is-active" aria-pressed="true" data-contractor-status="all">All statuses</button>
+          <button type="button" aria-pressed="false" data-contractor-status="fulfilled">Reported fulfilled</button>
+          <button type="button" aria-pressed="false" data-contractor-status="follow-up">Needs follow-up</button>
+          <button type="button" aria-pressed="false" data-contractor-status="unreported">Not reported</button>
+          <button type="button" aria-pressed="false" data-contractor-status="open">Active remaining</button>
+        </div><button type="button" id="clearParcelFilters">Clear filters</button>
+      </details>
       <p id="parcelFilterSummary" class="filter-summary" role="status">Choose an organization to see matching parcels.</p>
       <p id="pilotFeedStatus" class="feed-status" role="status">Loading reports…</p>
       <section class="contractor-panel is-active" data-contractor-panel="overview" aria-label="Completion Overview">
@@ -123,7 +120,7 @@
         <section class="assignment-check" aria-labelledby="assignmentCheckTitle">
           <div class="assignment-check__intro">
             <span class="section-kicker">Current assignment</span>
-            <h2 id="assignmentCheckTitle">Choose an assigned parcel</h2>
+            <h2 id="assignmentCheckTitle">1. Select parcels</h2>
             <p>Tap parcels on the map or add them from the list. Blue outlines mark your selection.</p>
           </div>
           <p id="parcelSearchResult" role="status"></p>
@@ -138,7 +135,7 @@
           </form>
           <section class="pilot-selection" aria-label="Selected parcels">
             <h3 id="pilotSelectionCount" aria-live="polite">0 parcels selected</h3>
-            <p>One answer and the photos cover every selected parcel. Use separate reports for different outcomes.</p>
+            <p>One answer covers this selection. Use separate reports for different outcomes.</p>
             <ul id="pilotSelectedParcels"></ul>
             <button id="pilotClearSelection" type="button" disabled>Clear selection</button>
             <p id="pilotSelectionHelp" role="status">Select one or more parcels to review.</p>
@@ -166,7 +163,7 @@
 
         <section class="survey-frame-card" aria-label="LandCare service report">
           <div class="survey-frame-head">
-            <div><span class="eyebrow">Review &amp; report</span><h2>Service report</h2></div>
+            <div><span class="eyebrow">Review &amp; report</span><h2>2. Review and report</h2></div>
             <a id="openSurveyLink" class="survey-open-link" href="#" target="_blank" rel="noopener noreferrer" hidden>Open form in a new tab</a>
           </div>
           <div class="survey-embed" id="surveyEmbed" aria-live="polite">
@@ -175,8 +172,8 @@
         </section>
       </section>
       <details class="report-diagnostics">
-        <summary>Report totals &amp; data details</summary>
-        <p>Repeat visits add reports and parcel visits, not additional fulfilled parcels. One Yes in this period counts as reported fulfilled; later No reports remain in the history.</p>
+        <summary>Troubleshooting and report totals</summary><button type="button" id="pilotRefreshReports">Refresh progress</button><button type="button" id="reloadApp">Reload app</button>
+        <p>Repeat visits add reports and parcel visits, not additional fulfilled parcels. The most recent submission determines each parcel status for the selected period. Older reports remain in history.</p>
         <p id="pilotReportMessage" role="status">Reading reports…</p>
         <div id="pilotReportCounts" class="diagnostic-counts"></div>
       </details>
@@ -199,10 +196,11 @@
         <div class="discard-actions"><button value="cancel" autofocus>Go back</button><button value="continue">Yes, report again</button></div>
       </form>
     </dialog>
-    <script type="module" src="../landcare/filter-ui.js?v=20261027-latest2"></script>
-    <script type="module" src="../landcare/survey-submission.js?v=20261027-latest2"></script>
-    <script type="module" src="../landcare/contractor-overview.js?v=20261027-latest2"></script>
-    <script type="module" src="../landcare/pilot-reporting-ui.js?v=20261027-latest2"></script>
+    <script type="module" src="../landcare/workspace-ui.js?v=20261027-field1"></script>
+    <script type="module" src="../landcare/filter-ui.js?v=20261027-field1"></script>
+    <script type="module" src="../landcare/survey-submission.js?v=20261027-field1"></script>
+    <script type="module" src="../landcare/contractor-overview.js?v=20261027-field1"></script>
+    <script type="module" src="../landcare/pilot-reporting-ui.js?v=20261027-field1"></script>
   </body>
 </html>
 

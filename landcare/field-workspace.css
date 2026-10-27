@@ -154,3 +154,31 @@ body[data-page="contractor"] :is(button,a,input,select,summary):focus-visible {o
 #repeatReportDialog {border:0;border-radius:16px;padding:24px;max-width:540px;width:calc(100% - 40px);color:#183b50;}
 #repeatReportDialog::backdrop {background:rgb(0 30 50 / 45%);}
 #repeatReportHelp {overflow-wrap:anywhere;max-height:45vh;overflow:auto;}
+
+/* Field-first workspace: dashboard details stay available without preceding the map. */
+body[data-page="contractor"] .contractor-shell > * {order:0;}
+body[data-page="contractor"] .workspace-progress,body[data-page="contractor"] .workspace-filters {padding:10px 14px;background:var(--panel,#fff);border:1px solid var(--line,#d6e2e8);border-radius:10px;}
+.workspace-progress[open] > section {margin-top:12px;}
+.workspace-search label {display:block;font-size:13px;}
+.workspace-search input {width:100%;min-height:44px;border:1px solid #bccfd9;border-radius:8px;padding:10px 12px;}
+body[data-page="contractor"] .filter-status-bar {position:static;order:0;display:flex;flex-wrap:wrap;padding:8px 0;border:0;box-shadow:none;}
+.workspace-filters select {min-height:44px;margin:8px 0;max-width:100%;}
+body[data-page="contractor"] .contractor-map-key button {min-height:44px;}
+body.report-open .assignment-check,body.report-open .workspace-search,body.report-open .workspace-filters,body.report-open .workspace-progress {display:none;}
+body.report-open .contractor-context select {pointer-events:none;opacity:.75;}
+@media(max-width:700px) {
+ body[data-page="contractor"] .contractor-shell {gap:8px;}
+ body[data-page="contractor"] .contractor-context {grid-template-columns:1fr 1fr;padding:10px;gap:6px 8px;}
+ body[data-page="contractor"] .contractor-context select {font-size:13px;width:100%;min-width:0;}
+ .contractor-context__status {display:none;}
+ .period-notice summary {font-size:12px;min-height:26px;}
+ .workspace-progress summary,.workspace-filters summary {font-size:13px;min-height:26px;}
+ .pilot-notice {font-size:11px;}
+ body[data-page="contractor"] .assignment-check__intro p {display:none;}
+ body[data-page="contractor"] .assignment-check__intro h2 {font-size:18px;}
+ body[data-page="contractor"] .contractor-assignment-form {margin:0;}
+ body[data-page="contractor"] .assignment-map-card__head {display:none;}
+ body[data-page="contractor"] .assignment-parcel-map {height:47vh;min-height:300px;}
+ .feed-status {font-size:11px;margin:0;}
+ .filter-summary {font-size:12px;margin:0;}
+}

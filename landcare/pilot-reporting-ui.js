@@ -1,5 +1,5 @@
-import { summarizePilotReports } from './pilot-reporting.js?v=20261027-latest2';
-import { fetchPilotResults } from './pilot-results-feed.js?v=20261027-latest2';
+import { summarizePilotReports } from './pilot-reporting.js?v=20261027-field1';
+import { fetchPilotResults } from './pilot-results-feed.js?v=20261027-field1';
 
 const message=document.getElementById('pilotReportMessage');
 const cards=document.getElementById('pilotReportCounts');
@@ -18,7 +18,7 @@ function render() {
   }
   try {
     const result=summarizePilotReports(snapshot.parents,snapshot.children,context.assignments,context);
-    for(const [label,value] of [['Reports',result.events],['Parcel visits',result.parcelVisits],['Reported parcels',result.reported],['Reported fulfilled',result.fulfilled],['Reported No only',result.followUp],['No pilot report',result.unreported]]) {
+    for(const [label,value] of [['Reports',result.events],['Parcel visits',result.parcelVisits],['Reported parcels',result.reported],['Reported fulfilled',result.fulfilled],['Latest report No',result.followUp],['No pilot report',result.unreported]]) {
       const card=document.createElement('article');card.className='diagnostic-count';
       const title=document.createElement('span');title.textContent=label;
       const count=document.createElement('strong');count.textContent=value;

@@ -1,19 +1,19 @@
-import {confirmPreviouslyReported} from './repeat-warning.js?v=20261027-latest2';
-import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-latest2";
-import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261027-latest2';
-import { parcelSymbol, labelSymbol, declutterMapLabels } from "./map-design.js?v=20261027-latest2";
-import {readParcelFilters,matchesParcelFilters,STATUS_LABELS} from "./parcel-filters.js?v=20261027-latest2";
-import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-latest2";
-import { parcelBlockLot } from "./parcel-label.js?v=20261027-latest2";
-import { ParcelSelection } from "./parcel-selection.js?v=20261027-latest2";
-import { currentPeriodLabel, previousPeriodLabel, assignmentPeriodLabel } from "./service-period.js?v=20261027-latest2";
-import { buildPilotSurveyUrl } from "./pilot-survey-url.js?v=20261027-latest2";
-import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261027-latest2";
+import {confirmPreviouslyReported} from './repeat-warning.js?v=20261027-field1';
+import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-field1";
+import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261027-field1';
+import { parcelSymbol, labelSymbol, declutterMapLabels } from "./map-design.js?v=20261027-field1";
+import {readParcelFilters,matchesParcelFilters,STATUS_LABELS} from "./parcel-filters.js?v=20261027-field1";
+import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-field1";
+import { parcelBlockLot } from "./parcel-label.js?v=20261027-field1";
+import { ParcelSelection } from "./parcel-selection.js?v=20261027-field1";
+import { currentPeriodLabel, previousPeriodLabel, assignmentPeriodLabel } from "./service-period.js?v=20261027-field1";
+import { buildPilotSurveyUrl } from "./pilot-survey-url.js?v=20261027-field1";
+import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261027-field1";
 import {
   ASSIGNMENT_HISTORY_LAYER_URL,
   SURVEY123_PREFILL_FIELDS,
   SURVEY123_SHARE_URL
-} from "./survey-submission-config.js?v=20261027-latest2";
+} from "./survey-submission-config.js?v=20261027-field1";
 
 let Map,MapView,Graphic,addFindMyLocation;
 const container = document.getElementById("surveyEmbed");
@@ -29,6 +29,9 @@ const selectedParcelLabel = document.getElementById("selectedParcelLabel");
 const selectedParcelBadge = document.getElementById("selectedParcelBadge");
 const selectedParcelMeta = document.getElementById("selectedParcelMeta");
 const selection = new ParcelSelection();
+let restoreSelection;
+try {restoreSelection=JSON.parse(sessionStorage.getItem('landcare-selection')||'null');} catch {}
+
 const selectionList = document.getElementById('pilotSelectedParcels');
 const selectionCount = document.getElementById('pilotSelectionCount');
 const clearSelectionButton = document.getElementById('pilotClearSelection');
@@ -66,6 +69,8 @@ function invalidatePilotForm() {
 
 function renderSelection() {
   const items = selection.values();
+  if(assignments.length) try {sessionStorage.setItem('landcare-selection',JSON.stringify({organization:organizationSelect.value,period:monthSelect.value,parcels:items.map(a=>({id:a.objectId,pin:a.parcelNumber}))}));} catch {}
+
   selectionCount.textContent = `${items.length} parcel${items.length === 1 ? '' : 's'} selected`;
   document.getElementById('pilotRunningSelected').textContent = String(items.length);
   clearSelectionButton.disabled = !items.length;
@@ -368,7 +373,7 @@ async function loadRecentMonths() {
   const months = [current, previousPeriodLabel(current)];
   setOptions(monthSelect, months.map((month) => ({
     value: month,
-    label: `${assignmentPeriodLabel(month)}${published.has(month) ? '' : ' — assignments not available'}`
+    label: `${month===current?'Current':'Previous'}: ${month}${published.has(month) ? '' : ' — assignments not available'}`
   })), "Choose assignment month");
   for (const option of monthSelect.options) option.disabled = !option.value || !published.has(option.value);
   const available = months.filter((month) => published.has(month));
@@ -395,7 +400,8 @@ function updatePeriodNotice() {
   const rules=document.createElement('details');
   const summary=document.createElement('summary');summary.textContent='How service periods work';
   const text=document.createElement('p');text.textContent='Periods run from the 15th through the 14th, Eastern time. Submit immediately after work, preferably the same day. If you miss the deadline, choose Previous period. Your report counts toward that selected period; your actual submission timestamp is preserved. Periods without published assignments cannot be selected.';
-  rules.append(summary,text);notice.append(fullRange,deadline,rules);
+  summary.textContent='Dates and reporting rules';
+  rules.append(summary,fullRange,deadline,text);notice.append(rules);
 }
 
 async function loadOrganizations() {
@@ -464,7 +470,12 @@ async function loadParcels(organization) {
   })), assignments.length ? "Choose an assigned parcel" : "No parcels assigned");
   parcelSelect.disabled = assignments.length === 0;
   confirmedOrganization=organizationSelect.value;
+  try {localStorage.setItem('landcare-organization',cleanOrganization(organization));} catch {}
   showAvailableParcels();
+  if(restoreSelection&&restoreSelection.organization===organization&&restoreSelection.period===requestedPeriod&&!portalParams.get('parcel')) {
+    for(const saved of restoreSelection.parcels||[]) {const match=assignments.find(a=>a.objectId===saved.id&&a.parcelNumber===saved.pin);if(match) selection.add(match);}
+    restoreSelection=null;renderSelection();
+  }
   document.dispatchEvent(new CustomEvent('landcare:pilot-assignments', {detail:{period:monthSelect.value,organization:cleanOrganization(organization),assignments}}));
   status.textContent = assignments.length
     ? `${assignments.filter(a=>assignmentType(a)==='Active').length} Active · ${assignments.filter(a=>assignmentType(a)==='Request Only').length} Request Only parcels. Choose from the map or the list.`
@@ -600,8 +611,8 @@ document.addEventListener('landcare:filters-changed',()=>{
 loadRecentMonths()
   .then(async () => {
     await loadOrganizations();
-    if (isContractorPortal && requestedOrganization) {
-      const requested = cleanOrganization(requestedOrganization).toLowerCase();
+    if (isContractorPortal && (requestedOrganization || readSavedOrganization())) {
+      const requested = cleanOrganization(requestedOrganization || readSavedOrganization()).toLowerCase();
       const matchingOption = [...organizationSelect.options].find((option) => (
         cleanOrganization(option.value).toLowerCase() === requested
       ));
@@ -641,3 +652,5 @@ initializeParcelMap().catch((error) => {
 
 
 
+
+function readSavedOrganization() {try {return localStorage.getItem('landcare-organization')||'';} catch {return '';}}

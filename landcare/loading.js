@@ -19,7 +19,7 @@ export function loadMapModules() {
     import('https://js.arcgis.com/4.30/@arcgis/core/layers/GraphicsLayer.js'),
     import('https://js.arcgis.com/4.30/@arcgis/core/widgets/BasemapToggle.js'),
     import('https://js.arcgis.com/4.30/@arcgis/core/widgets/Zoom.js'),
-    import('./map-location.js?v=20261027-latest2')
+    import('./map-location.js?v=20261027-field1')
   ]),'The map library').catch(error=>{mapModules=null;throw error;});
   return mapModules;
 }

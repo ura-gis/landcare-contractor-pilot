@@ -1,4 +1,4 @@
-import { verifyRepeatValues } from './pilot-repeat-data.js?v=20261027-latest2';
+import { verifyRepeatValues } from './pilot-repeat-data.js?v=20261027-field1';
 
 // Populate only after the repeat exists. Never retry a write: delayed API
 // visibility may be polled, but appending again could duplicate child records.

@@ -12,7 +12,7 @@ export async function confirmReportChange() {
   if(decision) return decision;
   decision=new Promise(resolve=>{
     dialog.returnValue='keep';
-    dialog.addEventListener('close',()=>{const discard=dialog.returnValue==='discard';decision=null;resolve(discard);},{once:true});
+    dialog.addEventListener('close',()=>{const discard=dialog.returnValue==='discard';decision=null;if(discard) document.dispatchEvent(new Event('landcare:discard-report'));resolve(discard);},{once:true});
     dialog.showModal();
   });
   return decision;
