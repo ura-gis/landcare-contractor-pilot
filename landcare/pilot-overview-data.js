@@ -1,4 +1,4 @@
-import {newestReportFirst} from './latest-report.js';
+import {newestReportFirst} from './latest-report.js?v=20261027-latest2';
 export function pilotOverviewFeatures(features, detail) {
   return features.map(feature=>{
     const props=feature.properties || {};

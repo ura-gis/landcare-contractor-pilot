@@ -1,6 +1,6 @@
-import {newestReportFirst} from './latest-report.js';
-import { ASSIGNMENT_HISTORY_LAYER_URL } from './survey-submission-config.js';
-import { assignmentType } from './assignment-type.js';
+import {newestReportFirst} from './latest-report.js?v=20261027-latest2';
+import { ASSIGNMENT_HISTORY_LAYER_URL } from './survey-submission-config.js?v=20261027-latest2';
+import { assignmentType } from './assignment-type.js?v=20261027-latest2';
 
 const pin = value => String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 const guid = value => String(value || '').trim().replace(/[{}]/g, '').toLowerCase();

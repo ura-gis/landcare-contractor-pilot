@@ -1,10 +1,10 @@
-import { withTimeout } from './loading.js';
-import { buildRepeatQuestionValues, verifyRepeatValues } from './pilot-repeat-data.js';
-import { initializeRepeat } from './pilot-repeat-initialize.js';
-import { assignmentType } from './assignment-type.js';
-import { parcelBlockLot } from './parcel-label.js';
-import { assignmentPeriodLabel } from './service-period.js';
-import { setReportDirty, setReportPending, clearReportGuard } from './report-guard.js?v=20261027-latest1';
+import { withTimeout } from './loading.js?v=20261027-latest2';
+import { buildRepeatQuestionValues, verifyRepeatValues } from './pilot-repeat-data.js?v=20261027-latest2';
+import { initializeRepeat } from './pilot-repeat-initialize.js?v=20261027-latest2';
+import { assignmentType } from './assignment-type.js?v=20261027-latest2';
+import { parcelBlockLot } from './parcel-label.js?v=20261027-latest2';
+import { assignmentPeriodLabel } from './service-period.js?v=20261027-latest2';
+import { setReportDirty, setReportPending, clearReportGuard } from './report-guard.js?v=20261027-latest2';
 
 let sdkPromise;
 async function loadSurveySdk() {
