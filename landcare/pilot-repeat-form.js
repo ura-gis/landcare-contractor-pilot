@@ -77,7 +77,14 @@ export async function openPilotRepeatForm(container,assignments,isCurrent) {
     },
     onFormLoaded:async data=>{
       try {
-        initialization ??= initializeRepeat(form,questionValue,isCurrent);
+        initialization ??= (async()=>{
+          if(!await initializeRepeat(form,questionValue,isCurrent)) return false;
+          const initial=await form.getQuestionValue();
+          if(!['Yes','No'].includes(initial.did_you_fulfill_your_obligation)) {
+            form.setQuestionValue({did_you_fulfill_your_obligation:'Yes'});
+          }
+          return isCurrent();
+        })();
         if(!await initialization) return;
         await checkSelection();if(!isCurrent()) return;
         // Presentation only: retain all stored context and related records.
