@@ -1,10 +1,10 @@
-import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-field2";
-import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261027-field2";
-import {readParcelFilters,matchesParcelFilters,compareParcels,STATUS_LABELS} from "./parcel-filters.js?v=20261027-field2";
-import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-field2";
-import { fetchPilotReportPhotos } from './pilot-results-feed.js?v=20261027-field2';
-import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261027-field2';
-import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261027-field2";
+import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-field3";
+import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261027-field3";
+import {readParcelFilters,matchesParcelFilters,compareParcels,STATUS_LABELS} from "./parcel-filters.js?v=20261027-field3";
+import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-field3";
+import { fetchPilotReportPhotos } from './pilot-results-feed.js?v=20261027-field3';
+import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261027-field3';
+import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261027-field3";
 import {
   cleanOrganization,
   fetchArcgisJson,
@@ -13,7 +13,7 @@ import {
   loadSurvey123EvidenceByPeriod,
   parcelDigits,
   survey123EvidenceMatchesAssignment
-} from "./survey-layer.js?v=20261027-field2";
+} from "./survey-layer.js?v=20261027-field3";
 
 let Map,MapView,Graphic,GraphicsLayer,BasemapToggle,Zoom,addFindMyLocation;
 const monthSelect = document.getElementById("assignmentMonth");
@@ -601,11 +601,11 @@ document.addEventListener("landcare:contractor-context", (event) => {
 });
 
 window.addEventListener("popstate", () => {
-  const tab = new URLSearchParams(window.location.search).get("tab") || "overview";
+  const tab = new URLSearchParams(window.location.search).get("tab") || "submit";
   setTab(tab);
 });
 
-setTab(new URLSearchParams(window.location.search).get("tab") || "overview");
+setTab(new URLSearchParams(window.location.search).get("tab") || "submit");
 document.addEventListener('landcare:filters-changed',()=>{
   if(state.view) state.view.popup?.close();
   renderOverview();

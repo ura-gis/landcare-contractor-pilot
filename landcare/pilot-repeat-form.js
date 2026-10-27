@@ -1,11 +1,11 @@
-import {draftKey,readDraft,saveDraft,clearDraft} from './report-draft.js?v=20261027-field2';
-import { withTimeout } from './loading.js?v=20261027-field2';
-import { buildRepeatQuestionValues, verifyRepeatValues } from './pilot-repeat-data.js?v=20261027-field2';
-import { initializeRepeat } from './pilot-repeat-initialize.js?v=20261027-field2';
-import { assignmentType } from './assignment-type.js?v=20261027-field2';
-import { parcelBlockLot } from './parcel-label.js?v=20261027-field2';
-import { assignmentPeriodLabel } from './service-period.js?v=20261027-field2';
-import { setReportDirty, setReportPending, clearReportGuard } from './report-guard.js?v=20261027-field2';
+import {draftKey,readDraft,saveDraft,clearDraft} from './report-draft.js?v=20261027-field3';
+import { withTimeout } from './loading.js?v=20261027-field3';
+import { buildRepeatQuestionValues, verifyRepeatValues } from './pilot-repeat-data.js?v=20261027-field3';
+import { initializeRepeat } from './pilot-repeat-initialize.js?v=20261027-field3';
+import { assignmentType } from './assignment-type.js?v=20261027-field3';
+import { parcelBlockLot } from './parcel-label.js?v=20261027-field3';
+import { assignmentPeriodLabel } from './service-period.js?v=20261027-field3';
+import { setReportDirty, setReportPending, clearReportGuard } from './report-guard.js?v=20261027-field3';
 
 let sdkPromise;
 async function loadSurveySdk() {
@@ -114,7 +114,7 @@ export async function openPilotRepeatForm(container,assignments,isCurrent) {
       completed=true;pending=false;clearTimeout(waiting);clearReportGuard();clearDraft(savedDraftKey);
       submit.disabled=true;submit.hidden=true;host.hidden=true;more.hidden=false;check.hidden=true;retry.hidden=true;
       message.classList.add('is-success');message.setAttribute('tabindex','-1');
-      message.textContent=`Received ${new Date().toLocaleString("en-US",{timeZone:"America/New_York"})} Eastern. ${assignments[0].organization}. Report received for ${assignments.length} parcel${assignments.length===1?'':'s'} · ${assignmentPeriodLabel(assignments[0].period)}. Progress is refreshing. Keep this confirmation for your records.`;
+      message.textContent=`Confirmation received ${new Date().toLocaleString("en-US",{timeZone:"America/New_York"})} Eastern. ${assignments[0].organization}. Report received for ${assignments.length} parcel${assignments.length===1?'':'s'} · ${assignmentPeriodLabel(assignments[0].period)}. Progress is refreshing. Keep this confirmation for your records.`;
       message.focus();document.dispatchEvent(new CustomEvent('landcare:pilot-submitted'));
     }
   });

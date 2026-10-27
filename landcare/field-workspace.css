@@ -184,3 +184,6 @@ body.report-open .assignment-check,body.report-open .workspace-search,body.repor
 }
 
 @media(max-width:700px){#parcelSearchResult{display:none;} .workspace-progress summary{font-size:12px;} .report-guidance{font-size:12px;} }
+
+.overview-map-key{font-size:12px;padding:8px 12px;margin:0;grid-column:1/-1;}
+body[data-active-tab="overview"].report-open .workspace-progress,body[data-active-tab="overview"].report-open .workspace-search,body[data-active-tab="overview"].report-open .workspace-filters{display:block;}

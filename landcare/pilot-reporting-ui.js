@@ -1,5 +1,5 @@
-import { summarizePilotReports } from './pilot-reporting.js?v=20261027-field2';
-import { fetchPilotResults } from './pilot-results-feed.js?v=20261027-field2';
+import { summarizePilotReports } from './pilot-reporting.js?v=20261027-field3';
+import { fetchPilotResults } from './pilot-results-feed.js?v=20261027-field3';
 
 const message=document.getElementById('pilotReportMessage');
 const cards=document.getElementById('pilotReportCounts');

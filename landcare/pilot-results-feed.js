@@ -1,4 +1,4 @@
-import { fetchWithTimeout } from './loading.js?v=20261027-field2';
+import { fetchWithTimeout } from './loading.js?v=20261027-field3';
 const ITEM = '050caf61aecb400596b340e8ae4bdcb2';
 async function json(url, params={}) {
   const target=new URL(url);
