@@ -7,6 +7,7 @@ export function buildRepeatQuestionValues(assignments) {
   if (!selection.size || selection.size !== assignments.length) throw new Error('Select distinct parcels from one organization and period.');
   const contexts = assignments.map(item => buildPilotSurveyUrl(item).searchParams);
   return {
+    did_you_fulfill_your_obligation: 'Yes',
     organization: contexts[0].get('field:organization'),
     assignment_period: contexts[0].get('field:assignment_period'),
     // Legacy parent fields are used only for a one-parcel event.

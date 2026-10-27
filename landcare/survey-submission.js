@@ -1,13 +1,14 @@
+import {confirmPreviouslyReported} from './repeat-warning.js';
 import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js";
-import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261026-filters1';
-import { parcelSymbol, labelSymbol, declutterMapLabels } from "./map-design.js?v=20261026-filters1";
+import { confirmReportChange, clearReportGuard } from './report-guard.js?v=20261027-latest1';
+import { parcelSymbol, labelSymbol, declutterMapLabels } from "./map-design.js?v=20261027-latest1";
 import {readParcelFilters,matchesParcelFilters,STATUS_LABELS} from "./parcel-filters.js";
 import { assignmentType,matchesAssignmentType } from "./assignment-type.js";
 import { parcelBlockLot } from "./parcel-label.js";
 import { ParcelSelection } from "./parcel-selection.js";
 import { currentPeriodLabel, previousPeriodLabel, assignmentPeriodLabel } from "./service-period.js";
 import { buildPilotSurveyUrl } from "./pilot-survey-url.js";
-import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261026-filters1";
+import { openPilotRepeatForm } from "./pilot-repeat-form.js?v=20261027-latest1";
 import {
   ASSIGNMENT_HISTORY_LAYER_URL,
   SURVEY123_PREFILL_FIELDS,
@@ -545,7 +546,11 @@ parcelSelect.addEventListener("change", () => {
 
 lookupForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  if (!selection.size || !await confirmReportChange()) return;
+  if (!selection.size) return;
+  const selectionKey=JSON.stringify(selection.values().map(a=>[a.objectId,a.period,a.organization]));
+  if(!await confirmPreviouslyReported(selection.values(),pilotStatuses)) return;
+  if(selectionKey!==JSON.stringify(selection.values().map(a=>[a.objectId,a.period,a.organization]))) return;
+  if(!await confirmReportChange()) return;
   invalidatePilotForm();
   document.body.classList.add("report-open");
   const version = formVersion;

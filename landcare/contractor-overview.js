@@ -1,10 +1,10 @@
 import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js";
-import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261026-filters1";
+import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261027-latest1";
 import {readParcelFilters,matchesParcelFilters,compareParcels,STATUS_LABELS} from "./parcel-filters.js";
 import { assignmentType,matchesAssignmentType } from "./assignment-type.js";
 import { fetchPilotReportPhotos } from './pilot-results-feed.js';
-import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261026-filters1';
-import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261026-filters1";
+import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261027-latest1';
+import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261027-latest1";
 import {
   cleanOrganization,
   fetchArcgisJson,
@@ -13,7 +13,7 @@ import {
   loadSurvey123EvidenceByPeriod,
   parcelDigits,
   survey123EvidenceMatchesAssignment
-} from "./survey-layer.js?v=20261026-filters1";
+} from "./survey-layer.js?v=20261027-latest1";
 
 let Map,MapView,Graphic,GraphicsLayer,BasemapToggle,Zoom,addFindMyLocation;
 const monthSelect = document.getElementById("assignmentMonth");

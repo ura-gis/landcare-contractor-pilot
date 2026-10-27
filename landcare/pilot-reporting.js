@@ -1,3 +1,4 @@
+import {newestReportFirst} from './latest-report.js';
 import { ASSIGNMENT_HISTORY_LAYER_URL } from './survey-submission-config.js';
 import { assignmentType } from './assignment-type.js';
 
@@ -35,9 +36,13 @@ export function summarizePilotReports(parents, children, assignments, {period, o
     pairs.add(pair); matchedEvents.add(parentId); reported.add(id);
     recordsByAssignment[id].push({eventId:parentId,objectId:p.objectid,answer:p.did_you_fulfill_your_obligation,
       submittedAt:p.creationdate ?? null,comments:p.comments || ''});
-    if(p.did_you_fulfill_your_obligation==='Yes') fulfilled.add(id);
+
   }
-  for(const id of reported) statuses[id]=fulfilled.has(id)?'fulfilled':'follow-up';
+  for(const id of reported) {
+    recordsByAssignment[id].sort(newestReportFirst);
+    if(recordsByAssignment[id][0].answer==='Yes') fulfilled.add(id);
+    statuses[id]=fulfilled.has(id)?'fulfilled':'follow-up';
+  }
   const totals=type=>{
     const rows=scoped.filter(a=>assignmentType(a)===type);
     const ids=rows.map(a=>String(a.objectId));

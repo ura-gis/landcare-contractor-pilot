@@ -1,4 +1,4 @@
-import { summarizePilotReports } from './pilot-reporting.js?v=20261026-filters1';
+import { summarizePilotReports } from './pilot-reporting.js?v=20261027-latest1';
 import { fetchPilotResults } from './pilot-results-feed.js';
 
 const message=document.getElementById('pilotReportMessage');
@@ -24,7 +24,7 @@ function render() {
       const count=document.createElement('strong');count.textContent=value;
       card.append(title,count);cards.append(card);
     }
-    message.textContent=`Last updated ${snapshot.loadedAt.toLocaleString()}. ${result.outstanding} Active parcels remain without a Yes report. Data checks: ${JSON.stringify(result.qa)}.`;
+    message.textContent=`Last updated ${snapshot.loadedAt.toLocaleString()}. ${result.outstanding} Active parcels have no report or their latest answer is No. Data checks: ${JSON.stringify(result.qa)}.`;
     document.getElementById('pilotFeedStatus').textContent=`Updated ${snapshot.loadedAt.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})} · contractor reports, not staff approval.`;
     signal(result.statuses,result);
   } catch(error) {message.textContent=`Pilot counts unavailable: ${error.message}`;document.getElementById('pilotFeedStatus').textContent='Progress unavailable. Refresh progress to retry.';signal(null);}

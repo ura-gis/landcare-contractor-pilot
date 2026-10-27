@@ -16,6 +16,7 @@ export function buildPilotSurveyUrl(assignment) {
     if (!value) throw new Error(`Missing parcel context: ${key}`);
     url.searchParams.set(`field:${SURVEY123_PREFILL_FIELDS[key]}`, value);
   }
+  url.searchParams.set('field:did_you_fulfill_your_obligation','Yes');
   url.searchParams.set('embed', '1');
   url.searchParams.set('hideNav', '1');
   url.searchParams.set('autoFocus', '0');

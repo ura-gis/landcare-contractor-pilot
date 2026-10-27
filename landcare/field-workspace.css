@@ -150,3 +150,7 @@ body[data-page="contractor"] :is(button,a,input,select,summary):focus-visible {o
   #pilotSelectedParcels {max-height:220px;}
 }
 
+
+#repeatReportDialog {border:0;border-radius:16px;padding:24px;max-width:540px;width:calc(100% - 40px);color:#183b50;}
+#repeatReportDialog::backdrop {background:rgb(0 30 50 / 45%);}
+#repeatReportHelp {overflow-wrap:anywhere;max-height:45vh;overflow:auto;}

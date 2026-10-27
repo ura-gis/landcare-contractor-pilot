@@ -4,7 +4,7 @@ import { initializeRepeat } from './pilot-repeat-initialize.js';
 import { assignmentType } from './assignment-type.js';
 import { parcelBlockLot } from './parcel-label.js';
 import { assignmentPeriodLabel } from './service-period.js';
-import { setReportDirty, setReportPending, clearReportGuard } from './report-guard.js?v=20261026-filters1';
+import { setReportDirty, setReportPending, clearReportGuard } from './report-guard.js?v=20261027-latest1';
 
 let sdkPromise;
 async function loadSurveySdk() {
@@ -30,7 +30,7 @@ export async function openPilotRepeatForm(container,assignments,isCurrent) {
   for(const item of assignments) {const li=document.createElement('li');li.textContent=`${parcelBlockLot(item.parcelNumber)} · ${item.address} · ${assignmentType(item)}`;list.append(li);}
   parcels.append(toggle,list);
   const guidance=document.createElement('p');guidance.className='report-guidance';
-  guidance.textContent='Report Request Only parcels only after the LandCare team asks you to service them. The answer and photos cover every selected parcel. For No, explain what prevented completion in Comments and photograph the current conditions. For Yes, photograph the completed work. Use separate reports for different outcomes.';
+  guidance.textContent='Report Request Only parcels only after the LandCare team asks you to service them. Yes is selected by default; choose No if obligations were not fulfilled. The answer and photos cover every selected parcel. For No, explain what prevented completion in Comments and photograph the current conditions. For Yes, photograph the completed work. Use separate reports for different outcomes.';
   summary.append(heading,context,parcels,guidance);
   const host=document.createElement('div');host.id=`pilot-repeat-${crypto.randomUUID()}`;host.className='pilot-form-host';
   const message=document.createElement('p');message.className='report-feedback';message.setAttribute('role','status');message.textContent='Preparing your service report…';

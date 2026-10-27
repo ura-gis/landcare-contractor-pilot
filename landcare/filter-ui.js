@@ -5,7 +5,7 @@ function setStatus(status) {
   for(const button of buttons) {
     const active=button.dataset.contractorStatus===status;
     button.classList.toggle('is-active',active);button.setAttribute('aria-pressed',String(active));
-    if(button.dataset.contractorStatus==='open') {button.disabled=type.value==='request';button.title=button.disabled?'Active remaining applies only to Active parcels.':'Active parcels without a Yes report';}
+    if(button.dataset.contractorStatus==='open') {button.disabled=type.value==='request';button.title=button.disabled?'Active remaining applies only to Active parcels.':'Active parcels whose latest report is No, or have no report';}
   }
 }
 function emit() {
