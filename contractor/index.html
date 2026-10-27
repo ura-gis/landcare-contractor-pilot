@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>LandCare Contractor Portal — Pilot</title>
     <link rel="stylesheet" href="https://js.arcgis.com/4.30/@arcgis/core/assets/esri/themes/light/main.css" media="print" onload="this.media='all'" />
-    <link rel="stylesheet" href="../landcare/app.css?v=20261027-imagery1" />
-    <link rel="stylesheet" href="../landcare/field-workspace.css?v=20261027-imagery1" />
+    <link rel="stylesheet" href="../landcare/app.css?v=20261027-overview1" />
+    <link rel="stylesheet" href="../landcare/field-workspace.css?v=20261027-overview1" />
   </head>
   <body data-page="contractor">
     <header class="app-header">
@@ -87,8 +87,19 @@
           <button type="button" role="tab" aria-selected="false" data-contractor-view="list">List view</button>
         </div>
         <section class="contractor-map-card" id="contractorMapCard" aria-label="Contractor assignment progress map">
+          <div class="overview-map-toolbar">
+            <div class="overview-map-heading"><strong>Survey status</strong><span id="overviewMapCount" role="status">Choose an organization</span></div>
+            <div class="pilot-selection-legend overview-legend" aria-label="Completion overview map legend">
+              <span><i class="pilot-key-submitted"></i>Survey complete (Yes) <b id="overviewLegendFulfilled">0</b></span>
+              <span><i class="pilot-key-followup"></i>Needs follow-up <b id="overviewLegendFollowUp">0</b></span>
+              <span><i class="pilot-key-assigned"></i>No survey <b id="overviewLegendUnreported">0</b></span>
+              <span id="overviewLegendUnknownItem" hidden><i class="pilot-key-assigned"></i>Status unavailable <b id="overviewLegendUnknown">0</b></span>
+              <span><i class="request-only-key"></i>Request Only <b id="overviewLegendRequest">0</b></span>
+              <span><i class="pilot-key-selected"></i>Selected parcel</span>
+            </div>
+            <p id="overviewMapSource">Counts reflect the parcels shown on this map. Zoom in for block &amp; lot labels.</p>
+          </div>
           <div id="contractorProgressMap" class="contractor-progress-map"></div>
-          <p class="overview-map-key">Map key: green = survey complete (Yes); amber = needs follow-up; gray = no survey; dashed = Request Only; blue outline = selected.</p>
           <div id="contractorParcelDetail" class="contractor-parcel-detail">Choose an organization, then select a parcel to see its surveys.</div>
         </section>
         <section class="contractor-list-card" id="contractorListCard" aria-label="Contractor assignment list" hidden>
@@ -197,11 +208,11 @@
         <div class="discard-actions"><button value="cancel" autofocus>Go back</button><button value="continue">Yes, submit another survey</button></div>
       </form>
     </dialog>
-    <script type="module" src="../landcare/workspace-ui.js?v=20261027-imagery1"></script>
-    <script type="module" src="../landcare/filter-ui.js?v=20261027-imagery1"></script>
-    <script type="module" src="../landcare/survey-submission.js?v=20261027-imagery1"></script>
-    <script type="module" src="../landcare/contractor-overview.js?v=20261027-imagery1"></script>
-    <script type="module" src="../landcare/pilot-reporting-ui.js?v=20261027-imagery1"></script>
+    <script type="module" src="../landcare/workspace-ui.js?v=20261027-overview1"></script>
+    <script type="module" src="../landcare/filter-ui.js?v=20261027-overview1"></script>
+    <script type="module" src="../landcare/survey-submission.js?v=20261027-overview1"></script>
+    <script type="module" src="../landcare/contractor-overview.js?v=20261027-overview1"></script>
+    <script type="module" src="../landcare/pilot-reporting-ui.js?v=20261027-overview1"></script>
   </body>
 </html>
 

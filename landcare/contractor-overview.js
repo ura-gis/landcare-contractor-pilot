@@ -1,11 +1,11 @@
-import {addImageryBasemapToggle} from './imagery-basemap.js?v=20261027-imagery1';
-import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-imagery1";
-import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261027-imagery1";
-import {readParcelFilters,matchesParcelFilters,compareParcels,STATUS_LABELS} from "./parcel-filters.js?v=20261027-imagery1";
-import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-imagery1";
-import { fetchPilotReportPhotos } from './pilot-results-feed.js?v=20261027-imagery1';
-import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261027-imagery1';
-import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261027-imagery1";
+import {addImageryBasemapToggle} from './imagery-basemap.js?v=20261027-overview1';
+import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-overview1";
+import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261027-overview1";
+import {readParcelFilters,matchesParcelFilters,compareParcels,STATUS_LABELS} from "./parcel-filters.js?v=20261027-overview1";
+import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-overview1";
+import { fetchPilotReportPhotos } from './pilot-results-feed.js?v=20261027-overview1';
+import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261027-overview1';
+import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261027-overview1";
 import {
   cleanOrganization,
   fetchArcgisJson,
@@ -14,7 +14,7 @@ import {
   loadSurvey123EvidenceByPeriod,
   parcelDigits,
   survey123EvidenceMatchesAssignment
-} from "./survey-layer.js?v=20261027-imagery1";
+} from "./survey-layer.js?v=20261027-overview1";
 
 let Map,MapView,Graphic,GraphicsLayer,BasemapToggle,Zoom,addFindMyLocation;
 const monthSelect = document.getElementById("assignmentMonth");
@@ -312,6 +312,13 @@ function renderOverview() {
     state.selectedObjectId='';detailVersion++;
     detailNode.textContent='The inspected parcel is outside the current filters. Change or clear filters to see it again.';
   }
+  const shown=visibleFeatures(),counts={fulfilled:0,'follow-up':0,unreported:0,unknown:0};
+  for(const feature of shown) counts[feature.properties.pilot_status in counts?feature.properties.pilot_status:'unknown']++;
+  document.getElementById('overviewMapCount').textContent=state.organization?`${shown.length} parcels shown`:'Choose an organization';
+  for(const [key,id] of [['fulfilled','Fulfilled'],['follow-up','FollowUp'],['unreported','Unreported'],['unknown','Unknown']]) document.getElementById(`overviewLegend${id}`).textContent=String(counts[key]);
+  document.getElementById('overviewLegendUnknownItem').hidden=!counts.unknown;
+  document.getElementById('overviewLegendRequest').textContent=String(shown.filter(f=>assignmentType(f.properties)==='Request Only').length);
+  document.getElementById('overviewMapSource').textContent=pilotDetail?.statuses?'Latest survey per parcel and period. Counts reflect shown parcels; Request Only is a separate type. Zoom in for block & lot labels.':'Survey status is loading or unavailable. Zoom in for block & lot labels.';
   renderMap();
   renderList();
   document.querySelectorAll("[data-contractor-status]").forEach((button) => {

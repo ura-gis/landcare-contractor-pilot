@@ -1,8 +1,8 @@
-import {parcelBlockLot} from '../landcare/parcel-label.js?v=20261027-imagery1';
-import {fetchAssignmentGeojsonForPeriod} from '../landcare/assignment-layer.js?v=20261027-imagery1';
-import {fetchPilotResults,fetchPilotReportPhotos} from '../landcare/pilot-results-feed.js?v=20261027-imagery1';
-import {projectAssuranceResults} from '../landcare/assurance-projection.js?v=20261027-imagery1';
-import {currentPeriodLabel,previousPeriodLabel} from '../landcare/service-period.js?v=20261027-imagery1';
+import {parcelBlockLot} from '../landcare/parcel-label.js?v=20261027-overview1';
+import {fetchAssignmentGeojsonForPeriod} from '../landcare/assignment-layer.js?v=20261027-overview1';
+import {fetchPilotResults,fetchPilotReportPhotos} from '../landcare/pilot-results-feed.js?v=20261027-overview1';
+import {projectAssuranceResults} from '../landcare/assurance-projection.js?v=20261027-overview1';
+import {currentPeriodLabel,previousPeriodLabel} from '../landcare/service-period.js?v=20261027-overview1';
 const $=id=>document.getElementById(id),period=$('period'),organization=$('organization');
 let assignments=[],projection,version=0;
 for(const value of [currentPeriodLabel(),previousPeriodLabel(currentPeriodLabel())]) period.add(new Option(value,value));

@@ -191,3 +191,16 @@ body[data-active-tab="overview"].report-open .workspace-progress,body[data-activ
 .imagery-basemap-toggle{min-height:44px;padding:10px 14px;background:#fff;color:#183b50;border:1px solid #b9ceda;border-radius:4px;font:600 13px Manrope,sans-serif;cursor:pointer;box-shadow:0 1px 4px #183b5033;}
 .imagery-basemap-toggle[aria-pressed="true"]{border-color:#006c98;color:#00597d;}
 .imagery-basemap-error{font-size:12px;margin:0;padding:8px 12px;background:#fff3e7;color:#7d3b0d;grid-column:1/-1;}
+
+/* Overview carries the same map key and parcel treatment as service selection. */
+body[data-page="contractor"] .contractor-map-card{background:#fff;border:1px solid #d6e2e8;border-radius:14px;box-shadow:0 2px 8px #183b5008;}
+.overview-map-toolbar{padding:14px 16px 10px;background:#fff;border-bottom:1px solid #d6e2e8;}
+.overview-map-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#183b50;}
+.overview-map-heading strong{font-size:15px;}.overview-map-heading span{font-size:13px;color:#526b7b;}
+.overview-legend{padding:10px 0 6px;gap:8px 16px;}
+.overview-legend>span{display:inline-flex;align-items:center;gap:6px;min-height:28px;white-space:nowrap;}
+.overview-legend b{padding:1px 6px;border-radius:5px;background:#edf3f6;font-size:12px;}
+.overview-map-toolbar p{margin:4px 0 0;font-size:12px;line-height:1.5;color:#526b7b;}
+body[data-page="contractor"] .contractor-parcel-detail{background:#f8fbfd;border-top:1px solid #d6e2e8;min-height:92px;font-size:14px;line-height:1.6;}
+body[data-page="contractor"] .contractor-progress-map{height:510px;}
+@media(max-width:700px){.overview-map-toolbar{padding:12px;}.overview-legend{gap:6px 12px;font-size:12px;}.overview-map-heading strong{font-size:14px;}body[data-page="contractor"] .contractor-progress-map{height:47vh;min-height:320px;}}
