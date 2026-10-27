@@ -1,10 +1,10 @@
-import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-survey1";
-import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261027-survey1";
-import {readParcelFilters,matchesParcelFilters,compareParcels,STATUS_LABELS} from "./parcel-filters.js?v=20261027-survey1";
-import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-survey1";
-import { fetchPilotReportPhotos } from './pilot-results-feed.js?v=20261027-survey1';
-import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261027-survey1';
-import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261027-survey1";
+import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-locate2";
+import { parcelSymbol,labelSymbol,declutterMapLabels } from "./map-design.js?v=20261027-locate2";
+import {readParcelFilters,matchesParcelFilters,compareParcels,STATUS_LABELS} from "./parcel-filters.js?v=20261027-locate2";
+import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-locate2";
+import { fetchPilotReportPhotos } from './pilot-results-feed.js?v=20261027-locate2';
+import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261027-locate2';
+import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261027-locate2";
 import {
   cleanOrganization,
   fetchArcgisJson,
@@ -13,7 +13,7 @@ import {
   loadSurvey123EvidenceByPeriod,
   parcelDigits,
   survey123EvidenceMatchesAssignment
-} from "./survey-layer.js?v=20261027-survey1";
+} from "./survey-layer.js?v=20261027-locate2";
 
 let Map,MapView,Graphic,GraphicsLayer,BasemapToggle,Zoom,addFindMyLocation;
 const monthSelect = document.getElementById("assignmentMonth");

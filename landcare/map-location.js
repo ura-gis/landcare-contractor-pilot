@@ -6,7 +6,7 @@ export function addFindMyLocation(view) {
   message.className = 'pilot-location-status esri-widget';
   message.setAttribute('role', 'status');
   message.setAttribute('aria-live', 'polite');
-  message.textContent = 'Find my location centers the map; select parcels yourself.';
+  message.hidden = true;
   const locate = new Locate({
     view,
     label: 'Find my location',
@@ -16,15 +16,17 @@ export function addFindMyLocation(view) {
   control.className = 'pilot-locate-control';
   locate.container = control;
   locate.on('locate', () => {
-    message.textContent = 'Location shown for navigation only. Confirm the parcel boundary before selecting.';
+    message.hidden = true;
   });
   locate.on('locate-error', (event) => {
+    message.hidden = false;
     message.textContent = event.error?.code === 1
       ? 'Location permission was denied. You can still select parcels using the map or list.'
       : 'Unable to find your location. You can still select parcels using the map or list.';
   });
   // Keep clear of the overview's absolute-positioned parcel status toolbar.
   view.ui.add(control, { position: 'bottom-right', index: 0 });
-  view.ui.add(message, 'bottom-left');
+  // Show actionable errors below the map, never over the locate button.
+  view.container.insertAdjacentElement('afterend', message);
   return locate;
 }

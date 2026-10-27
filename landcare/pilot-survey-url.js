@@ -1,4 +1,4 @@
-import { SURVEY123_SHARE_URL, SURVEY123_PREFILL_FIELDS, ASSIGNMENT_HISTORY_LAYER_URL } from './survey-submission-config.js?v=20261027-survey1';
+import { SURVEY123_SHARE_URL, SURVEY123_PREFILL_FIELDS, ASSIGNMENT_HISTORY_LAYER_URL } from './survey-submission-config.js?v=20261027-locate2';
 
 export function buildPilotSurveyUrl(assignment) {
   const url = new URL(SURVEY123_SHARE_URL);
