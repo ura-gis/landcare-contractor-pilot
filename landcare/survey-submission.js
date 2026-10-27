@@ -82,7 +82,7 @@ function renderSelection() {
   continueButton.textContent = `Open survey for ${items.length || 'selected'} parcel${items.length === 1 ? '' : 's'}`;
   selectionHelp.textContent = items.length > 1
     ? 'The same answer and photos must cover every selected parcel. Use separate surveys for different outcomes.'
-    : 'Add more parcels or continue to review and report.';
+    : 'Add more parcels or continue to review and submit your survey.';
   selectionList.replaceChildren(...items.map(item => {
     const row = document.createElement('li');
     row.append(document.createTextNode(`${parcelBlockLot(item.parcelNumber)} — ${item.address} · ${assignmentType(item)}`));
