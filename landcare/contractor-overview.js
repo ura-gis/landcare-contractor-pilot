@@ -223,7 +223,7 @@ function setEmptyState(message) {
   rateNode.hidden = true;
   detailNode.textContent = "Choose an organization, then select an open parcel to begin its service submission.";
   state.layer?.removeAll();
-  renderList();
+  renderOverview();
 }
 
 function featureGeometry(feature) {
@@ -507,7 +507,7 @@ async function refreshOverview() {
   state.features=[];state.selectedObjectId='';state.layer?.removeAll();
   assignedNode.textContent='—';submittedNode.textContent='—';openNode.textContent='—';
   document.getElementById('contractorUnreportedKpi').textContent='—';rateNode.hidden=true;
-  renderList();
+  renderOverview();
   detailVersion++;
   titleNode.textContent=`${organization} pilot progress`;
   freshnessNode.textContent=`Loading ${month} assignments…`;
