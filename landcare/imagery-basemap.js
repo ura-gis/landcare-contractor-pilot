@@ -1,4 +1,4 @@
-import {withTimeout} from './loading.js?v=20261027-labels1';
+import {withTimeout} from './loading.js?v=20261027-contrast1';
 export const IMAGERY_2025={
  title:'2025 EagleView imagery',
  // Exact 2025 layer and REST tile template from the supplied WMTS capabilities.

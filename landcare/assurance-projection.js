@@ -1,7 +1,7 @@
-import {currentPeriodLabel} from './service-period.js?v=20261027-labels1';
-import {newestReportFirst} from './latest-report.js?v=20261027-labels1';
-import {ASSIGNMENT_HISTORY_LAYER_URL} from './survey-submission-config.js?v=20261027-labels1';
-import {assignmentType} from './assignment-type.js?v=20261027-labels1';
+import {currentPeriodLabel} from './service-period.js?v=20261027-contrast1';
+import {newestReportFirst} from './latest-report.js?v=20261027-contrast1';
+import {ASSIGNMENT_HISTORY_LAYER_URL} from './survey-submission-config.js?v=20261027-contrast1';
+import {assignmentType} from './assignment-type.js?v=20261027-contrast1';
 const pin=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
 const guid=v=>String(v||'').replace(/[{}]/g,'').toLowerCase();
 const org=v=>String(v||'').replace(/\s+Primary Contact$/i,'').trim();

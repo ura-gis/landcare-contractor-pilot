@@ -24,13 +24,13 @@ summary {cursor:pointer;min-height:32px;line-height:1.6;font-weight:650;}
 .request-progress small {display:block;font-size:12px;line-height:1.5;margin-top:4px;}
 .scope-selector {flex:0 0 220px;}
 .scope-selector select {min-height:44px;border:1px solid #bccfd9;border-radius:8px;background:#fff;color:#183b50;font-size:14px;max-width:100%;}
-.request-only-key {background:#e7e2ee !important;border:2px dashed #756789 !important;}
+.request-only-key {background:#d9c9ec !important;border:2px dashed #593180 !important;}
 .assignment-type-badge {display:inline-block;background:#f2eff6;border-radius:5px;color:#51435e;padding:3px 6px;white-space:nowrap;font-size:12px;}
 .map-label-hint {font-size:12px;color:#526b7b;font-weight:normal;}
-body[data-page="contractor"] .contractor-map-key i.submitted,.pilot-selection-legend .pilot-key-submitted {background:rgba(85,157,105,.58);border-color:#39734b;}
-body[data-page="contractor"] .contractor-map-key i.follow-up,.pilot-selection-legend .pilot-key-followup {background:rgba(232,181,112,.48);border-color:#a77836;}
-.pilot-selection-legend .pilot-key-assigned,body[data-page="contractor"] .contractor-map-key i.open {background:rgba(230,237,240,.4);border-color:#7a8b94;}
-.pilot-selection-legend .pilot-key-selected {background:rgba(0,139,194,.26);border:2px solid #006a96;}
+body[data-page="contractor"] .contractor-map-key i.submitted,.pilot-selection-legend .pilot-key-submitted {background:rgba(52,153,83,.62);border-color:#175c30;}
+body[data-page="contractor"] .contractor-map-key i.follow-up,.pilot-selection-legend .pilot-key-followup {background:rgba(240,157,49,.60);border-color:#874207;}
+.pilot-selection-legend .pilot-key-assigned,body[data-page="contractor"] .contractor-map-key i.open {background:rgba(221,231,238,.48);border-color:#344d60;}
+.pilot-selection-legend .pilot-key-selected {background:rgba(0,158,219,.40);border:2px solid #006a96;}
 body[data-page="contractor"] .pilot-shared-progress {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
 body[data-page="contractor"] .contractor-progress-card {min-height:0;padding:12px 16px;border-radius:10px;box-shadow:none;background:#fff;color:#183b50;border:1px solid #d6e2e8;border-top:4px solid #68869a;}
 body[data-page="contractor"] .contractor-progress-card::after {display:none;}

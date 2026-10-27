@@ -1,15 +1,15 @@
 // Shared cartography for the two contractor maps.
 export function parcelSymbol(status, selected=false, requestOnly=false) {
   const styles={
-    fulfilled:{fill:[85,157,105,0.58],edge:'#39734b'},
-    'follow-up':{fill:[232,181,112,0.48],edge:'#a77836'},
-    unreported:{fill:[230,237,240,0.40],edge:'#7a8b94'},
-    unknown:{fill:[230,237,240,0.28],edge:'#7a8b94'}
+    fulfilled:{fill:[52,153,83,0.62],edge:'#175c30'},
+    'follow-up':{fill:[240,157,49,0.60],edge:'#874207'},
+    unreported:{fill:[221,231,238,0.48],edge:'#344d60'},
+    unknown:{fill:[221,231,238,0.40],edge:'#344d60'}
   };
   const style=styles[status]||styles.unknown;
   const quietRequest=requestOnly && !['fulfilled','follow-up'].includes(status);
-  return {type:'simple-fill',color:selected?[0,139,194,0.26]:quietRequest?[156,149,174,0.28]:style.fill,
-    outline:{color:selected?'#006a96':quietRequest?'#756789':style.edge,width:selected?2.5:1,style:requestOnly?'dash':'solid'}};
+  return {type:'simple-fill',color:selected?[0,158,219,0.40]:quietRequest?[167,133,211,0.42]:style.fill,
+    outline:{color:selected?'#006a96':quietRequest?'#593180':style.edge,width:selected?3:2,style:requestOnly?'dash':'solid'}};
 }
 
 export function labelSymbol(text,selected=false) {

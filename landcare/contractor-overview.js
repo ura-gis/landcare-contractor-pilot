@@ -1,11 +1,11 @@
-import {addImageryBasemapToggle} from './imagery-basemap.js?v=20261027-labels1';
-import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-labels1";
-import { parcelSymbol,labelSymbol,declutterMapLabels,parcelLabelPoint } from "./map-design.js?v=20261027-labels1";
-import {readParcelFilters,matchesParcelFilters,compareParcels,STATUS_LABELS} from "./parcel-filters.js?v=20261027-labels1";
-import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-labels1";
-import { fetchPilotReportPhotos } from './pilot-results-feed.js?v=20261027-labels1';
-import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261027-labels1';
-import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261027-labels1";
+import {addImageryBasemapToggle} from './imagery-basemap.js?v=20261027-contrast1';
+import { waitForWorkspaceTab,loadMapModules,withTimeout,fetchWithTimeout } from "./loading.js?v=20261027-contrast1";
+import { parcelSymbol,labelSymbol,declutterMapLabels,parcelLabelPoint } from "./map-design.js?v=20261027-contrast1";
+import {readParcelFilters,matchesParcelFilters,compareParcels,STATUS_LABELS} from "./parcel-filters.js?v=20261027-contrast1";
+import { assignmentType,matchesAssignmentType } from "./assignment-type.js?v=20261027-contrast1";
+import { fetchPilotReportPhotos } from './pilot-results-feed.js?v=20261027-contrast1';
+import { pilotOverviewFeatures, pilotStatusLabel } from './pilot-overview-data.js?v=20261027-contrast1';
+import { fetchAssignmentGeojsonForPeriod } from "./assignment-layer.js?v=20261027-contrast1";
 import {
   cleanOrganization,
   fetchArcgisJson,
@@ -14,7 +14,7 @@ import {
   loadSurvey123EvidenceByPeriod,
   parcelDigits,
   survey123EvidenceMatchesAssignment
-} from "./survey-layer.js?v=20261027-labels1";
+} from "./survey-layer.js?v=20261027-contrast1";
 
 let Map,MapView,Graphic,GraphicsLayer,BasemapToggle,Zoom,addFindMyLocation;
 const monthSelect = document.getElementById("assignmentMonth");
