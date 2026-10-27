@@ -5,7 +5,7 @@ export async function confirmPreviouslyReported(assignments,statuses) {
   if(!reported.length) return true;
   if(decision) return decision;
   const dialog=document.getElementById('repeatReportDialog');
-  const text=`You already submitted a report for ${reported.length===1?'this parcel':`these ${reported.length} parcels`} in ${assignments[0].period}: ${reported.map(a=>parcelBlockLot(a.parcelNumber)).join(', ')}. Report again? The newest submission will determine each parcel’s status for this period.`;
+  const text=`You already submitted a report for ${reported.length===1?'this parcel':`these ${reported.length} parcels`} in ${assignments[0].period}: ${reported.map(a=>parcelBlockLot(a.parcelNumber)).join(', ')}. Report again? The newest submission will determine the status for this period.`;
   if(!dialog) return window.confirm(text);
   document.getElementById('repeatReportHelp').textContent=text;
   decision=new Promise(resolve=>{
